@@ -22,19 +22,34 @@ namespace OnlineShop.Server.Controllers
 
         //С помощью POST из Body по пришедшим состороны пользователя credentials, система пытается зарегистрировать его в системе и возвращает пользователю результат
         [HttpPost]
-        public User Post([FromBody] UserCredentials credentials)
+        public ActionResult<User> Post([FromBody] UserCredentials credentials)
         {
             var user = _userRepository.Register(credentials);
-            return user;
+            return Ok(user);
         }
 
-        //С помощью PUT из Body по пришедшим состороны пользователя credentials, система пытается залогинить (найти сведения, тождественные credentials) и возвращает пользователю результат
-        [HttpPut]
-        public User Put([FromBody] UserCredentials credentials)
-        {
+        //[HttpPut]
+        //public ActionResult<string> Put([FromBody] string data)
+        //{
+        //    var req = HttpContext.Request;
+        //    //var user = _userRepository.Login(credentials);
+        //    // var user = new User() { Login = "asd", Password = "asdw", Registered = DateTime.Now };
+        //    return new ContentResult() { Content = data.ToUpper() };
+        //}
 
+        //С помощью PUT из Body по пришедшим состороны пользователя credentials, система пытается залогинить (найти сведения, тождественные credentials) и возвращает пользователю результат
+        /// <summary>
+        /// Login user from credentials
+        /// </summary>
+        /// <param name="credentials"></param>
+        /// <returns></returns>
+        [HttpPut]
+        public ActionResult<User> Put(UserCredentials credentials)
+        {
+            var req = HttpContext.Request;
             var user = _userRepository.Login(credentials);
-            return user;
+            user = new User() { Login = "asd", Password = "asdw", Registered = DateTime.Now };
+            return Ok(user);
         }
     }
 }

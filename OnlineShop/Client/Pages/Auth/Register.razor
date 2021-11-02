@@ -1,15 +1,15 @@
 ﻿@page "/authorization/register"
 
 @using OnlineShop.Shared
-
+@inject HttpClient client
 
 <h3>Register</h3>
 <div>
     <EditForm Model="credentials" class="form-group">
 
-        <InputText @bind-Value="@credentials.Login" class="form-row"/>
-        <InputText @bind-Value="@credentials.Password" class="form-row"/>
-        <InputText @bind-Value="@passwordRepeated" class="form-row"/>
+        <InputText @bind-Value="@credentials.Login" class="form-row" />
+        <InputText @bind-Value="@credentials.Password" class="form-row" />
+        <InputText @bind-Value="@passwordRepeated" class="form-row" />
 
         <button @onclick="OnRegister">Register</button>
     </EditForm>
@@ -33,13 +33,29 @@
         credentials = new UserCredentials();
     }
 
-    private void OnRegister()
+    private async void OnRegister()
     {
         if (passwordRepeated != credentials.Password)
+        {
             errString = "Passwords dont match";
+        }
         else
-            errString = null;
-
-
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, "api/Auth");
+            request.Content = JsonContent.Create<UserCredentials>(credentials);
+            var response = await client.SendAsync(request);
+            User user = await response.Content.ReadFromJsonAsync<User>();
+            Console.WriteLine(user);
+            //var postBody = new { Title = "Blazor POST Request Example" };
+            //var user = await client.SendAsync(request);
+            //using var response = await client.PostAsJsonAsync("https://reqres.in/api/articles", postBody);
+            //
+            //// convert response data to JsonElement which can handle any JSON data
+            //var data = await response.Content.ReadFromJsonAsync<JsonElement>();
+            //
+            //// get id property from JSON response data
+            //articleId = data.GetProperty("id").GetString();
+            //errString = null;
+        }
     }
 }

@@ -6,11 +6,11 @@
 <h3>Login</h3>
 <div>
     <EditForm Model="@credentials" class="form-group">
-        <InputText @bind-Value="@credentials.Login" class="form-row"/>
+        <InputText @bind-Value="@credentials.Login" class="form-row" />
 
-        <InputText @bind-Value="@credentials.Password"  class="form-row"/>
+        <InputText @bind-Value="@credentials.Password" class="form-row" />
 
-        <button @onclick="OnLogin" class="btn btn-primary" > Login</button>
+        <button @onclick="OnLogin" class="btn btn-primary"> Login</button>
     </EditForm>
 
     <label class="alert-warning">@labelValue</label>
@@ -29,12 +29,20 @@
         credentials = new UserCredentials();
     }
 
-
     private async Task OnLogin()
     {
-        var request = new HttpRequestMessage(HttpMethod.Put, "/auth");
+        var request = new HttpRequestMessage(HttpMethod.Put, "api/Auth");
         request.Content = JsonContent.Create<UserCredentials>(credentials);
-        var user = await client.SendAsync(request);
-        Console.WriteLine(user);
+        var response = await client.SendAsync(request);
+        User user = await response.Content.ReadFromJsonAsync<User>();
+        //var content = new StringContent("123");
+        //var response = await client.PostAsync("api/Auth", content);
+        //var data = await response.Content.ReadAsStringAsync();
+        //Console.WriteLine(data);
+
+        //if (user != null)
+        //    Console.WriteLine(user);
+        //else
+        //    Console.WriteLine("Empty user");
     }
 }
