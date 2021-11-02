@@ -41,21 +41,9 @@
         }
         else
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "api/Auth");
-            request.Content = JsonContent.Create<UserCredentials>(credentials);
-            var response = await client.SendAsync(request);
+            var response = await client.PostAsJsonAsync<UserCredentials>("api/Auth", credentials);
             User user = await response.Content.ReadFromJsonAsync<User>();
             Console.WriteLine(user);
-            //var postBody = new { Title = "Blazor POST Request Example" };
-            //var user = await client.SendAsync(request);
-            //using var response = await client.PostAsJsonAsync("https://reqres.in/api/articles", postBody);
-            //
-            //// convert response data to JsonElement which can handle any JSON data
-            //var data = await response.Content.ReadFromJsonAsync<JsonElement>();
-            //
-            //// get id property from JSON response data
-            //articleId = data.GetProperty("id").GetString();
-            //errString = null;
         }
     }
 }

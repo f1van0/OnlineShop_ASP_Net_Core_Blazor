@@ -8,16 +8,18 @@ namespace OnlineShop.Shared
 {
     public record User
     {
-        public Guid Id;
+        public Guid Id { get; set; }
 
-        public string Login;
+        public string Login { get; set; }
 
-        public string Password;
+        public string Password { get; set; }
 
-        public DateTime Registered;
+        public DateTime Registered { get; set; }
+
         public User()
         {
             Id = Guid.NewGuid();
+            Registered = DateTime.Now;
         }
     }
 }

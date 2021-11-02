@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OnlineShop.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace OnlineShop.Server.Controllers
@@ -28,15 +30,6 @@ namespace OnlineShop.Server.Controllers
             return Ok(user);
         }
 
-        //[HttpPut]
-        //public ActionResult<string> Put([FromBody] string data)
-        //{
-        //    var req = HttpContext.Request;
-        //    //var user = _userRepository.Login(credentials);
-        //    // var user = new User() { Login = "asd", Password = "asdw", Registered = DateTime.Now };
-        //    return new ContentResult() { Content = data.ToUpper() };
-        //}
-
         //С помощью PUT из Body по пришедшим состороны пользователя credentials, система пытается залогинить (найти сведения, тождественные credentials) и возвращает пользователю результат
         /// <summary>
         /// Login user from credentials
@@ -44,11 +37,9 @@ namespace OnlineShop.Server.Controllers
         /// <param name="credentials"></param>
         /// <returns></returns>
         [HttpPut]
-        public ActionResult<User> Put(UserCredentials credentials)
+        public ActionResult<User> Put([FromBody] UserCredentials credentials)
         {
-            var req = HttpContext.Request;
             var user = _userRepository.Login(credentials);
-            user = new User() { Login = "asd", Password = "asdw", Registered = DateTime.Now };
             return Ok(user);
         }
     }

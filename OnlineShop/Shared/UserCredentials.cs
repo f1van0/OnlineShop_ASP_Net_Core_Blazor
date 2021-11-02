@@ -8,8 +8,8 @@ namespace OnlineShop.Shared
 {
     public record UserCredentials
     {
-        public string Login;
+        public string Login { get; set; }
 
-        public string Password;
+        public string Password { get; set; }
     }
 }

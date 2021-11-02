@@ -31,18 +31,8 @@
 
     private async Task OnLogin()
     {
-        var request = new HttpRequestMessage(HttpMethod.Put, "api/Auth");
-        request.Content = JsonContent.Create<UserCredentials>(credentials);
-        var response = await client.SendAsync(request);
+        var response = await client.PutAsJsonAsync<UserCredentials>("api/Auth", credentials);
         User user = await response.Content.ReadFromJsonAsync<User>();
-        //var content = new StringContent("123");
-        //var response = await client.PostAsync("api/Auth", content);
-        //var data = await response.Content.ReadAsStringAsync();
-        //Console.WriteLine(data);
-
-        //if (user != null)
-        //    Console.WriteLine(user);
-        //else
-        //    Console.WriteLine("Empty user");
+        Console.WriteLine(user);
     }
 }
