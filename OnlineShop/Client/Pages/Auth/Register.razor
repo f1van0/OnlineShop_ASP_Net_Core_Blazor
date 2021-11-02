@@ -1,0 +1,45 @@
+﻿@page "/authorization/register"
+
+@using OnlineShop.Shared
+
+
+<h3>Register</h3>
+<div>
+    <EditForm Model="credentials" class="form-group">
+
+        <InputText @bind-Value="@credentials.Login" class="form-row"/>
+        <InputText @bind-Value="@credentials.Password" class="form-row"/>
+        <InputText @bind-Value="@passwordRepeated" class="form-row"/>
+
+        <button @onclick="OnRegister">Register</button>
+    </EditForm>
+
+    @if (errString != null)
+    {
+        <label>@errString</label>
+    }
+
+    <a href="/authorization/login">To login </a>
+</div>
+
+
+@code {
+    UserCredentials credentials;
+    string passwordRepeated;
+    string? errString;
+
+    public Register()
+    {
+        credentials = new UserCredentials();
+    }
+
+    private void OnRegister()
+    {
+        if (passwordRepeated != credentials.Password)
+            errString = "Passwords dont match";
+        else
+            errString = null;
+
+
+    }
+}

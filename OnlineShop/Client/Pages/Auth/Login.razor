@@ -1,0 +1,36 @@
+﻿@page "/authorization/login"
+
+@using OnlineShop.Shared
+
+<h3>Login</h3>
+<div>
+    <EditForm Model="@credentials" class="form-group">
+        <InputText @bind-Value="@credentials.Login" class="form-row"/>
+
+        <InputText @bind-Value="@credentials.Password"  class="form-row"/>
+
+        <button @onclick="OnLogin" class="btn btn-primary" > Login</button>
+    </EditForm>
+
+    <label class="alert-warning">@labelValue</label>
+
+    <a href="/authorization/register">To registration </a>
+</div>
+
+
+@code {
+    UserCredentials credentials;
+
+    string labelValue;
+
+    public Login()
+    {
+        credentials = new UserCredentials();
+    }
+
+
+    private void OnLogin()
+    {
+        labelValue = credentials.ToString();
+    }
+}

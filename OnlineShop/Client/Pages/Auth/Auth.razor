@@ -1,14 +1,14 @@
-﻿@page "/"
+﻿@page "/authorization"
+@using OnlineShop.Shared
+
 @inject NavigationManager navManager;
 
-<div>
-    Bla bla
-</div>
+<h3>Auth</h3>
 
-@code{ 
+@code{
     protected override Task OnInitializedAsync()
     {
-        navManager.NavigateTo("/authorization");
+        navManager.NavigateTo("/authorization/login");
         return Task.CompletedTask;
     }
 }
