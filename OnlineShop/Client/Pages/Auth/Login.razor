@@ -1,6 +1,7 @@
 ﻿@page "/authorization/login"
 
 @using OnlineShop.Shared
+@inject HttpClient client
 
 <h3>Login</h3>
 <div>
@@ -29,8 +30,11 @@
     }
 
 
-    private void OnLogin()
+    private async Task OnLogin()
     {
-        labelValue = credentials.ToString();
+        var request = new HttpRequestMessage(HttpMethod.Put, "/auth");
+        request.Content = JsonContent.Create<UserCredentials>(credentials);
+        var user = await client.SendAsync(request);
+        Console.WriteLine(user);
     }
 }
