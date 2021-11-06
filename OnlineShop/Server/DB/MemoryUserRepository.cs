@@ -1,8 +1,6 @@
-﻿using System;
+﻿using OnlineShop.Shared;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using OnlineShop.Shared;
 
 namespace OnlineShop.Server.DB
 {
@@ -29,11 +27,11 @@ namespace OnlineShop.Server.DB
         {
             if (!UserExist(credentials.Login))
             {
-                var user = new User() 
-                { 
-                    Login = credentials.Login, 
+                var user = new User()
+                {
+                    Login = credentials.Login,
                     Password = credentials.Password,
-                    Registered = DateTime.Now    
+                    Registered = DateTime.Now
                 };
                 _users.Add(user);
                 return user;

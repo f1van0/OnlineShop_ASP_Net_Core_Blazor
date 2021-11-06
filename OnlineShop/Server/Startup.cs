@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using OnlineShop.Shared;
-using OnlineShop.Server.DB;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
-using System.IO;
+using OnlineShop.Server.DB;
+using OnlineShop.Shared;
 using System;
+using System.IO;
+using System.Reflection;
 
 namespace OnlineShop.Server
 {
