@@ -1,17 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Linq;
 using OnlineShop.Shared;
 using OnlineShop.Server.DB;
-using Swashbuckle.SwaggerUi;
-using Swashbuckle.Swagger;
-using Swashbuckle.Application;
-using Swashbuckle;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.IO;
+using System;
 
 namespace OnlineShop.Server
 {
@@ -34,10 +31,15 @@ namespace OnlineShop.Server
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            //Добавление Swagger'а ???
+            //Добавление Swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "OnlineShop.Api", Version = "v1" });
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
         }
 
