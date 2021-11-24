@@ -29,14 +29,18 @@ namespace OnlineShop.Server
         {
             //Добавление Синглтона MemoryUserRepository для создания автоматической привязки его ко всем нуждающимся в нём скриптам
             services.AddSingleton<IUserRepository>(new MemoryUserRepository());
-            OdbcConnection con = new OdbcConnection() 
-            { 
-                ConnectionString = "dsn=OnlineShopODBC;uid=root;database=online_shop;",
-            };
-            con.Open();
-            var db = new DataBase(con);
-            Console.WriteLine(db.GetTime());
-            services.AddSingleton<DbConnection>(con);
+            services.AddSingleton<DbConnection>((provider) =>
+            {
+                var conn = new OdbcConnection()
+                {
+                    ConnectionString = "dsn=OnlineShopODBC;uid=root;database=online_shop;",
+                };
+                conn.Open();
+                return conn;
+            });
+            services.AddTransient<IDataAccess, DataAccess>();
+            services.AddTransient<DataBase>();
+
             services.AddControllersWithViews();
             services.AddRazorPages();
 
@@ -53,8 +57,10 @@ namespace OnlineShop.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataBase db)
         {
+            var time = await db.GetTime();
+            Console.WriteLine(time);
             // Add Swagger
             app.UseSwagger();
             app.UseSwaggerUI(c =>

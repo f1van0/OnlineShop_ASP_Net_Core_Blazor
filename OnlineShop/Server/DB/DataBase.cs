@@ -3,29 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Data.Common;
+using Dapper;
 
 namespace OnlineShop.Server.DB
 {
     public class DataBase
     {
-        DbConnection connection;
+        IDataAccess db;
 
-        public DataBase(DbConnection connection)
+        public DataBase(IDataAccess connection)
         {
-            this.connection = connection;
+            this.db = connection;
         }
 
-        public DateTime GetTime()
+        public async Task<DateTime> GetTime()
         {
-            var command = connection.CreateCommand();
-            command.CommandType = System.Data.CommandType.Text;
-            command.CommandText = "select now()";
-
-            using (var reader = command.ExecuteReader())
-            {
-                var time = reader.GetDateTime(0);
-                return time;
-            }
+            var time = await db.Select<DateTime>("select now()", null);
+            return time.First();
         }
     }
 }
