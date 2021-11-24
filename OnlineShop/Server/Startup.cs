@@ -9,6 +9,8 @@ using OnlineShop.Shared;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Data.Odbc;
+using System.Data.Common;
 
 namespace OnlineShop.Server
 {
@@ -25,13 +27,20 @@ namespace OnlineShop.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            //Добавление Синглтона MemoryUserRepository для создания автоматической привязки его ко всем нуждающимся в нём скриптам
+            //Р”РѕР±Р°РІР»РµРЅРёРµ РЎРёРЅРіР»С‚РѕРЅР° MemoryUserRepository РґР»СЏ СЃРѕР·РґР°РЅРёСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕР№ РїСЂРёРІСЏР·РєРё РµРіРѕ РєРѕ РІСЃРµРј РЅСѓР¶РґР°СЋС‰РёРјСЃСЏ РІ РЅС‘Рј СЃРєСЂРёРїС‚Р°Рј
             services.AddSingleton<IUserRepository>(new MemoryUserRepository());
-
+            OdbcConnection con = new OdbcConnection() 
+            { 
+                ConnectionString = "dsn=OnlineShopODBC;uid=root;database=online_shop;",
+            };
+            con.Open();
+            var db = new DataBase(con);
+            Console.WriteLine(db.GetTime());
+            services.AddSingleton<DbConnection>(con);
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            //Добавление Swagger
+            //Р”РѕР±Р°РІР»РµРЅРёРµ Swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "OnlineShop.Api", Version = "v1" });
