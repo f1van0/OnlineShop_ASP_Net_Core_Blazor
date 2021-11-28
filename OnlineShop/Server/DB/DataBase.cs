@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Data.Common;
 using Dapper;
+using OnlineShop.Shared;
 
 namespace OnlineShop.Server.DB
 {
@@ -18,8 +19,14 @@ namespace OnlineShop.Server.DB
 
         public async Task<DateTime> GetTime()
         {
-            var time = await db.Select<DateTime>("select now()", null);
+            var time = await db.Select<DateTime, int?>("select now()", null);
             return time.First();
+        }
+
+        public async Task AddUser(string username, string password)
+        {
+            string sql = "INSERT INTO users(username, password) Values(@username, @password)";
+            await db.Query<User>(sql, new User{ Username = username, Password = password });
         }
     }
 }

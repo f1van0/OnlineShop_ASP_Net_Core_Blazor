@@ -16,13 +16,13 @@ namespace OnlineShop.Server.DB
             this._connection = connection;
         }
 
-        public async Task<List<T>> Select<T>(string sql, object parameters)
+        public async Task<List<T>> Select<T, U>(string sql, U parameters)
         {
             var rows = await _connection.QueryAsync<T>(sql, parameters);
             return rows.ToList();
         }
 
-        public async Task Query(string sql, object parameters) => 
+        public async Task<int> Query<T>(string sql, T parameters) => 
             await _connection.ExecuteAsync(sql, parameters);
 
     }

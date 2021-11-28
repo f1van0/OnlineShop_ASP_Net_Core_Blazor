@@ -11,25 +11,25 @@ namespace OnlineShop.Shared
     {
         [Key]
         [Required]
-        public Guid Id { get; set; }
+        public int ID { get; set; }
         
         [Key]
         [Required]
         [StringLength(maximumLength: 12, MinimumLength = 4)]
-        public string Login { get; set; }
+        public string Username { get; set; }
 
         [Required]
         [StringLength(maximumLength: 16, MinimumLength = 6)]
         public string Password { get; set; }
 
-        [Required]
-        [Timestamp]
-        public DateTime Registered { get; set; }
+        //[Required]
+        //[Timestamp]
+        //public DateTime Registered { get; set; }
 
         public User()
         {
-            Id = Guid.NewGuid();
-            Registered = DateTime.Now;
+            //Id = Guid.NewGuid();
+            //Registered = DateTime.Now;
         }
     }
 }

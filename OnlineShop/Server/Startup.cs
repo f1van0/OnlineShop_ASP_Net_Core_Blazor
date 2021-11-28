@@ -29,15 +29,21 @@ namespace OnlineShop.Server
         {
             //Добавление Синглтона MemoryUserRepository для создания автоматической привязки его ко всем нуждающимся в нём скриптам
             services.AddSingleton<IUserRepository>(new MemoryUserRepository());
+
             services.AddSingleton<DbConnection>((provider) =>
             {
-                var conn = new OdbcConnection()
+            //    var conn = new OdbcConnection()
+            //    {
+            //        ConnectionString = "dsn=OnlineShopODBC;uid=root;database=online_shop;",
+            //    };
+                var conn = new MySql.Data.MySqlClient.MySqlConnection()
                 {
-                    ConnectionString = "dsn=OnlineShopODBC;uid=root;database=online_shop;",
+                    ConnectionString = "User Id=root;Host=localhost;Character Set=utf8;Database=online_shop;",
                 };
                 conn.Open();
                 return conn;
             });
+
             services.AddTransient<IDataAccess, DataAccess>();
             services.AddTransient<DataBase>();
 
@@ -60,6 +66,7 @@ namespace OnlineShop.Server
         public async void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataBase db)
         {
             var time = await db.GetTime();
+            await db.AddUser("test", "passwordTest");
             Console.WriteLine(time);
             // Add Swagger
             app.UseSwagger();
