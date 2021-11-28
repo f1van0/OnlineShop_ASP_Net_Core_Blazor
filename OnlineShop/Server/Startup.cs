@@ -27,9 +27,6 @@ namespace OnlineShop.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            //Добавление Синглтона MemoryUserRepository для создания автоматической привязки его ко всем нуждающимся в нём скриптам
-            services.AddSingleton<IUserRepository>(new MemoryUserRepository());
-
             services.AddSingleton<DbConnection>((provider) =>
             {
             //    var conn = new OdbcConnection()
@@ -44,8 +41,11 @@ namespace OnlineShop.Server
                 return conn;
             });
 
-            services.AddTransient<IDataAccess, DataAccess>();
-            services.AddTransient<DataBase>();
+            services.AddSingleton<IDataAccess, DataAccess>();
+            // services.AddTransient<DataBase>();
+
+            //Добавление Синглтона MemoryUserRepository для создания автоматической привязки его ко всем нуждающимся в нём скриптам
+            services.AddSingleton<IUserRepository, UserDB>();
 
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -63,11 +63,8 @@ namespace OnlineShop.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataBase db)
+        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            var time = await db.GetTime();
-            await db.AddUser("test", "passwordTest");
-            Console.WriteLine(time);
             // Add Swagger
             app.UseSwagger();
             app.UseSwaggerUI(c =>

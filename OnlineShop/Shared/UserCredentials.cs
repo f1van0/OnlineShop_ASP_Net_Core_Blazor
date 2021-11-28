@@ -11,7 +11,7 @@ namespace OnlineShop.Shared
     {
         [Required]
         [StringLength(maximumLength: 12, MinimumLength = 4)]
-        public string Login { get; set; }
+        public string UserName { get; set; }
 
         [Required]
         [StringLength(maximumLength: 16, MinimumLength = 6)]

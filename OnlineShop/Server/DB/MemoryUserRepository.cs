@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace OnlineShop.Server.DB
 {
     //Класс для хранения зарегистрированных пользователей в списке в оперативной памяти
-    public class MemoryUserRepository : IUserRepository
+    /*public class MemoryUserRepository : IUserRepository
     {
         private List<User> _users;
 
@@ -42,4 +42,5 @@ namespace OnlineShop.Server.DB
         public bool UserExist(string login) =>
             _users.Find(usr => usr.Username == login) != null;
     }
+    */
 }

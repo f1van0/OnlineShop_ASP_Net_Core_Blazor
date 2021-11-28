@@ -22,9 +22,9 @@ namespace OnlineShop.Shared
         [StringLength(maximumLength: 16, MinimumLength = 6)]
         public string Password { get; set; }
 
-        //[Required]
-        //[Timestamp]
-        //public DateTime Registered { get; set; }
+        [Required]
+        [Timestamp]
+        public DateTime Date { get; set; }
 
         public User()
         {

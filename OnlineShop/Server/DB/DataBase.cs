@@ -25,8 +25,7 @@ namespace OnlineShop.Server.DB
 
         public async Task AddUser(string username, string password)
         {
-            string sql = "INSERT INTO users(username, password) Values(@username, @password)";
-            await db.Query<User>(sql, new User{ Username = username, Password = password });
+            
         }
     }
 }

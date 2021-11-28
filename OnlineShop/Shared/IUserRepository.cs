@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +8,10 @@ namespace OnlineShop.Shared
 {
     public interface IUserRepository
     {
-        User Register(UserCredentials credentials);
+        Task<User> Register(UserCredentials credentials);
 
-        User Login(UserCredentials credentials);
+        Task<User> Login(UserCredentials credentials);
 
-        bool UserExist(string login);
+        Task<bool> UserExist(string login);
     }
 }

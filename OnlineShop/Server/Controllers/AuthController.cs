@@ -31,10 +31,14 @@ namespace OnlineShop.Server.Controllers
         // зарегистрировать его в системе и возвращает пользователю результат
         public ActionResult<User> Post([FromBody] UserCredentials credentials)
         {
-            var user = _userRepository.Register(credentials);
-            if (user == null)
+            if (_userRepository.UserExist(credentials.UserName).Result)
                 return BadRequest();
 
+            var user = _userRepository.Register(credentials);
+            if (user.Result == null)
+                return BadRequest();
+
+            HttpContext.Response.Cookies.Append("auth", $"{user.Result.Username}, {user.Result.Password}");
             return Ok(user);
         }
 
@@ -49,17 +53,16 @@ namespace OnlineShop.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [Produces("application/json")]
-        //С помощью PUT из Body по пришедшим состороны пользователя credentials, система пытается
+        //С помощью PUT из Body по пришедшим со стороны пользователя credentials, система пытается
         // залогинить (найти сведения, тождественные credentials) и возвращает пользователю результат
         public ActionResult<User> Put([FromBody] UserCredentials credentials)
         {
             var user = _userRepository.Login(credentials);
-            if (user == null)
+            if (user.Result == null)
                 return Unauthorized();
 
-            HttpContext.Response.Cookies.Append("auth", $"{user.Username}, {user.Password}");
+            HttpContext.Response.Cookies.Append("auth", $"{user.Result.Username}, {user.Result.Password}");
             return Ok(user);
-
         }
     }
 }
