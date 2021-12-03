@@ -38,7 +38,7 @@ namespace OnlineShop.Server.Controllers
             if (user.Result == null)
                 return BadRequest();
 
-            HttpContext.Response.Cookies.Append("auth", $"{user.Result.Username}, {user.Result.Password}");
+            HttpContext.Response.Cookies.Append("auth", $"{user.Result.UserName}, {user.Result.Password}");
             return Ok(user);
         }
 
@@ -61,7 +61,7 @@ namespace OnlineShop.Server.Controllers
             if (user.Result == null)
                 return Unauthorized();
 
-            HttpContext.Response.Cookies.Append("auth", $"{user.Result.Username}, {user.Result.Password}");
+            HttpContext.Response.Cookies.Append("auth", $"{user.Result.UserName}, {user.Result.Password}");
             return Ok(user);
         }
     }
