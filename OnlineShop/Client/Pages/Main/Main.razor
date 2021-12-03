@@ -1,0 +1,57 @@
+﻿@page "/Main";
+@using Shared;
+@using OnlineShop.Shared
+@using OnlineShop.Server.Controllers
+@layout MainLayout;
+@using MudBlazor
+@inject HttpClient client
+@inject ISnackbar Snackbar
+
+<MudContainer>
+    <MudButton Color="Color.Dark" @onclick="@(() => Snackbar.Add("The reactor type is RBMK-1000", Severity.Normal))">Normal Snackbar</MudButton>
+    @if (goodsStats == null)
+    {
+        <p>
+            <em>Loading...</em>
+        </p>
+    }
+    else if (goodsStats != null)
+    {
+        @for (int i = 0; i < goodsStats.Length; i++)
+        {
+            //buttonStrings.Add("button_"+@goodsStats[i].ID, "Купить");
+            //<button name="button_@goodsStats[i].ID" @onclick="@(e => BuyGoods(@goodsStats[i].ID))">@buttonStrings["button_"+@goodsStats[i].ID]</button>
+
+            <Good ID=@goodsStats[i].ID Name=@goodsStats[i].Name Price=@goodsStats[i].Price OnBuyGood="BuyGoods"/>
+        }
+    }
+</MudContainer>
+
+@code {
+    //private Dictionary<string, string> buttonStrings;
+    private GoodsStats[] goodsStats;
+
+    public async void BuyGoods(int goodsID)
+    {
+        var response = await client.PostAsJsonAsync<PurchaseAction>("api/Catalog", new PurchaseAction() {GoodsId = goodsID, UserId = 23});
+        bool result = await response.Content.ReadFromJsonAsync<bool>();
+    //if (result)
+    //    buttonStrings["button_" + goodsID] = "Куплено";
+        if (result)
+            Snackbar.Add("Успешно куплено", Severity.Success);
+        else
+            Snackbar.Add("Произошла ошибка при покупке", Severity.Error);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            goodsStats = await client.GetFromJsonAsync<GoodsStats[]>("api/Catalog");
+        }
+        catch
+        {
+        }
+    }
+
+}
