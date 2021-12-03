@@ -17,24 +17,24 @@ namespace OnlineShop.Server.DB
 
         public async Task<User> Login(UserCredentials credentials)
         {
-            string sql = "SELECT * FROM users WHERE username = @Username AND password = @Password;";
-            var users = await _db.Select<User, User>(sql, new User { Username = credentials.UserName, Password = credentials.Password });
+            string sql = "SELECT * FROM online_shop.users WHERE UserName = @Username AND Password = @Password;";
+            var users = await _db.Select<User, UserCredentials>(sql, credentials);
             return users.FirstOrDefault();
         }
 
         public async Task<User> Register(UserCredentials credentials)
         {
             string sql = "START TRANSACTION;" +
-                "INSERT INTO users(username, password) Values(@username, @password);"+
-                "SELECT * FROM users WHERE ID = LAST_INSERT_ID();"+
+                "INSERT INTO online_shop.users(Username, Password) Values(@Username, @Password);"+
+                "SELECT * FROM online_shop.users WHERE ID = LAST_INSERT_ID();"+
                 "COMMIT;";
-            var users = await _db.Select<User, User>(sql, new User { Username = credentials.UserName, Password = credentials.Password});
+            var users = await _db.Select<User, UserCredentials>(sql,  credentials);
             return users.FirstOrDefault();
         }
 
         public async Task<bool> UserExist(string login)
         {
-            string sql = "SELECT * FROM users WHERE username = @Username;";
+            string sql = "SELECT * FROM online_shop.users WHERE UserName = @Username;";
             var users = await _db.Select<User, dynamic>(sql, new { Username = login });
             
             if (users.FirstOrDefault() != null)

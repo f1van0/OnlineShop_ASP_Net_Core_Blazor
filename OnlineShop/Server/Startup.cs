@@ -37,12 +37,8 @@ namespace OnlineShop.Server
                 return conn;
             });
 
-            services.AddSingleton<IDataAccess, DataAccess>();
-            // services.AddTransient<DataBase>();
 
-            //Добавление Синглтона MemoryUserRepository для создания автоматической привязки его ко всем нуждающимся в нём скриптам
-            services.AddSingleton<IUserRepository, UserDB>();
-
+            services.RegisterServices();
             services.AddControllersWithViews();
             services.AddRazorPages();
 
