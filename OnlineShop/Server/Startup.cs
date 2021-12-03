@@ -29,13 +29,9 @@ namespace OnlineShop.Server
         {
             services.AddSingleton<DbConnection>((provider) =>
             {
-            //    var conn = new OdbcConnection()
-            //    {
-            //        ConnectionString = "dsn=OnlineShopODBC;uid=root;database=online_shop;",
-            //    };
                 var conn = new MySql.Data.MySqlClient.MySqlConnection()
                 {
-                    ConnectionString = "User Id=root;Host=localhost;Character Set=utf8;Database=online_shop;",
+                    ConnectionString = Configuration.GetConnectionString("MySql")
                 };
                 conn.Open();
                 return conn;
