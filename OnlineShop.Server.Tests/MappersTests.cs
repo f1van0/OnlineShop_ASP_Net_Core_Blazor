@@ -32,14 +32,14 @@ namespace OnlineShop.Server.Tests
         public void VectorMapper_Deserialize()
         {
             // Arrange
-            Vector exprected = new Vector() {X = 32, Y = 102};
+            Vector expected = new Vector() {X = 32, Y = 102};
 
             // Act
             VectorMapper mapper = new();
             Vector size = mapper.Parse("32x102");
 
             // Assert
-            size.Should().BeSameAs(exprected);
+            size.Should().Be(expected);
         }
 
         [Test]
