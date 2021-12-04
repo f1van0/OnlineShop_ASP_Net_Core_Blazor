@@ -25,6 +25,7 @@ namespace OnlineShop.Server
             SqlMapper.AddTypeHandler(new ArrayMapper<Color>());
             SqlMapper.AddTypeHandler(new ArrayMapper<int>());
             SqlMapper.AddTypeHandler(new ArrayMapper<int[]>());
+            SqlMapper.AddTypeHandler(new StringsMapper());
         }
     }
 }
