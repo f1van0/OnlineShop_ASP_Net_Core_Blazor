@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace OnlineShop.Server.DB.Mappers
 {
     [Table(("images"))]
-    public class UserMosaic
+    public record UserMosaic
     {
         public int ID { get; set; }
         public int OwnerID { get; set; }
