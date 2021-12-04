@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using OnlineShop.Server.DB;
+using OnlineShop.Server.DB.Mappers;
 using OnlineShop.Shared;
 using System;
 using System.IO;
 using System.Reflection;
-using System.Data.Odbc;
 using System.Data.Common;
 
 namespace OnlineShop.Server
@@ -29,23 +30,21 @@ namespace OnlineShop.Server
         {
             services.AddSingleton<DbConnection>((provider) =>
             {
-                var conn = new MySql.Data.MySqlClient.MySqlConnection()
-                {
-                    ConnectionString = Configuration.GetConnectionString("MySql")
-                };
+                var conn = new MySql.Data.MySqlClient.MySqlConnection() {ConnectionString = Configuration.GetConnectionString("MySql")};
                 conn.Open();
                 return conn;
             });
 
 
             services.RegisterServices();
+            services.AddDapperMappers();
             services.AddControllersWithViews();
             services.AddRazorPages();
 
             //Добавление Swagger
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "OnlineShop.Api", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "OnlineShop.Api", Version = "v1"});
 
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -55,7 +54,6 @@ namespace OnlineShop.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // Add Swagger
             app.UseSwagger();
