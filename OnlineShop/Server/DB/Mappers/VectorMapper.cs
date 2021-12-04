@@ -1,20 +1,20 @@
 ﻿using Dapper;
+using OnlineShop.Shared;
 using System.Data;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
-using Size = OnlineShop.Shared.Size;
 
 namespace OnlineShop.Server.DB.Mappers
 {
-    public class SizeMapper : SqlMapper.TypeHandler<Size>
+    public class VectorMapper : SqlMapper.TypeHandler<Vector>
     {
         private static Regex sizeRegex = new(@"(\d+)x(\d+)", RegexOptions.Compiled | RegexOptions.Singleline);
 
-        public override void SetValue(IDbDataParameter parameter, Size value) =>
+        public override void SetValue(IDbDataParameter parameter, Vector value) =>
             parameter.Value = $"{value.X}x{value.Y}";
 
-        public override Size Parse(object value)
+        public override Vector Parse(object value)
         {
             string line = (string)value;
 
@@ -24,7 +24,7 @@ namespace OnlineShop.Server.DB.Mappers
 
             int x = int.Parse(groups[0].Value);
             int y = int.Parse(groups[1].Value);
-            return new Size() {X = x, Y = y};
+            return new Vector() {X = x, Y = y};
         }
     }
 }

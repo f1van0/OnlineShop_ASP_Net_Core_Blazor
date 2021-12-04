@@ -1,7 +1,8 @@
-﻿using System;
+﻿using OnlineShop.Server.DB.Mappers;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace OnlineShop.Server.DB.Mappers
+namespace OnlineShop.Shared
 {
     [Table(("images"))]
     public record UserMosaic
@@ -9,7 +10,7 @@ namespace OnlineShop.Server.DB.Mappers
         public int ID { get; set; }
         public int OwnerID { get; set; }
         public string Name { get; set; }
-        public string Size { get; set; }
+        public Vector Size { get; set; }
         public int[][] Image { get; set; }
         public ColourPalette Palette { get; set; }
         public DateTime Date { get; set; }
