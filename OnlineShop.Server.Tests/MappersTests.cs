@@ -3,6 +3,7 @@ using Moq;
 using NUnit.Framework;
 using OnlineShop.Server.DB;
 using OnlineShop.Server.DB.Mappers;
+using OnlineShop.Server.DB.Mappers.OnlineShop.Server.DB.Mappers;
 using OnlineShop.Shared;
 using System.Data;
 
@@ -37,20 +38,72 @@ namespace OnlineShop.Server.Tests
             VectorMapper mapper = new();
             Vector size = mapper.Parse("32x102");
 
-            // // Assert
+            // Assert
             size.Should().BeSameAs(exprected);
         }
 
         [Test]
         public void StringsMapper_Serialize()
         {
-            // Palette = new ColourPalette() {Colors = new[] {"asd"}, ID = 1, Name = "ASD"},
-            // Image = new int[][] {new[] {1, 2, 3}, new[] {1, 2, 3}, new[] {1, 2, 3}},
+            // Arrange
+            Mock<IDbDataParameter> parameter = new Mock<IDbDataParameter>()
+                .SetupProperty(x => x.Value);
+            string[] example = new[] {"Apple", "Banana"};
+
+            // Act
+            StringsMapper mapper = new();
+            var dataParameter = parameter.Object;
+            mapper.SetValue(dataParameter, example);
+
+            // Assert
+            dataParameter.Value.Should().Be("Apple, Banana");
         }
 
         [Test]
         public void StringsMapper_Deserialize()
         {
+            // Arrange
+            string example = "Apple, Banana";
+
+            // Act
+            StringsMapper mapper = new();
+            var result = mapper.Parse(example);
+
+            // Assert
+            result.Should().HaveCount(2);
+            result.Should().Equal("Apple", "Banana");
+        }
+
+        [Test]
+        public void ArraysMapper_Serialize()
+        {
+            // Arrange
+            Mock<IDbDataParameter> parameter = new Mock<IDbDataParameter>()
+                .SetupProperty(x => x.Value);
+            int[] example = new[] {1, 2, 3};
+
+            // Act
+            ArrayMapper<int> mapper = new();
+            var dataParameter = parameter.Object;
+            mapper.SetValue(dataParameter, example);
+
+            // Assert
+            dataParameter.Value.Should().Be("[1,2,3]");
+        }
+
+        [Test]
+        public void ArrayMapper_Deserialize()
+        {
+            // Arrange
+            string example = "[1,2,3]";
+
+            // Act
+            ArrayMapper<int> mapper = new();
+            var result = mapper.Parse(example);
+
+            // Assert
+            result.Should().HaveCount(3);
+            result.Should().Equal(1, 2, 3);
         }
     }
 }
