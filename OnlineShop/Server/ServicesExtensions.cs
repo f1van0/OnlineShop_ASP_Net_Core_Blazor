@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using OnlineShop.Server.DB;
+using OnlineShop.Server.DB.Mappers;
 using OnlineShop.Server.DB.Mappers.OnlineShop.Server.DB.Mappers;
 using OnlineShop.Shared;
 
@@ -26,6 +27,7 @@ namespace OnlineShop.Server
             SqlMapper.AddTypeHandler(new ArrayMapper<int>());
             SqlMapper.AddTypeHandler(new ArrayMapper<int[]>());
             SqlMapper.AddTypeHandler(new StringsMapper());
+            SqlMapper.AddTypeHandler(new SizeMapper());
         }
     }
 }
