@@ -19,11 +19,11 @@ namespace OnlineShop.Server.DB.Mappers
             string line = (string)value;
 
             Group[] groups = sizeRegex.Match(line).Groups.Values.ToArray();
-            if (groups.Length != 2)
+            if (groups.Length != 3)
                 throw new SerializationException($"Could not serialize Size = {line}");
 
-            int x = int.Parse(groups[0].Value);
-            int y = int.Parse(groups[1].Value);
+            int x = int.Parse(groups[1].Value);
+            int y = int.Parse(groups[2].Value);
             return new Vector() {X = x, Y = y};
         }
     }
