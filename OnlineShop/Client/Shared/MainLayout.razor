@@ -1,17 +1,32 @@
 ﻿@inherits LayoutComponentBase
+@using MudBlazor;
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <div class="main">
-        <div class="top-row px-4">
-            <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
-        </div>
-
+<MudLayout>
+    <MudAppBar Elevation="1">
+        @if (!navMenuOpen)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="DrawerToggle"/>
+            <MudLink Href="/" Underline="Underline.None" Color="Color.Default" Typo="Typo.h5" Class="ml-3 my-auto" Style="color: #fefefe !important;">
+                OnlineShop
+            </MudLink>
+        }
+        <MudSpacer/>
+        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End"/>
+    </MudAppBar>
+    <NavMenu Open=@navMenuOpen ClickedClose="DrawerToggle"></NavMenu>
+    <MudMainContent>
         <div class="content px-4">
             @Body
         </div>
-    </div>
-</div>
+    </MudMainContent>
+</MudLayout>
+
+@code{
+    bool navMenuOpen = true;
+
+    void DrawerToggle()
+    {
+        navMenuOpen = !navMenuOpen;
+    }
+
+}

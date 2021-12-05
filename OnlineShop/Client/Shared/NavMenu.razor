@@ -1,37 +1,39 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
-    <a class="navbar-brand" href="">OnlineShop</a>
-    <button class="navbar-toggler" @onclick="ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-</div>
+﻿<MudDrawer @bind-Open="Open" Variant="@DrawerVariant.Responsive">
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+    <MudDrawerHeader Style="height: calc(var(--mud-appbar-height) - var(--mud-appbar-height)/4);">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="onClicked"/>
+        <MudLink Href="/" Underline="Underline.None" Color="Color.Default" Typo="Typo.h5" Class="ml-3 my-auto">
+            OnlineShop
+        </MudLink>
+    </MudDrawerHeader>
+
+    <MudDrawerContainer>
+        <MudNavMenu>
+            <MudNavLink Href="">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
+            </MudNavLink>
+            <MudNavLink Href="/counter">
                 <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
+            </MudNavLink>
+            <MudNavLink Href="/fetchdata">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </li>
-    </ul>
-</div>
+            </MudNavLink>
+            <MudNavLink Href="/editor">Editor</MudNavLink>
+        </MudNavMenu>
+    </MudDrawerContainer>
+</MudDrawer>
 
 @code {
-    private bool collapseNavMenu = true;
 
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    [Parameter]
+    public bool Open { get; set; } = false;
 
-    private void ToggleNavMenu()
+    [Parameter]
+    public EventCallback ClickedClose { get; set; }
+
+    private void onClicked()
     {
-        collapseNavMenu = !collapseNavMenu;
+        ClickedClose.InvokeAsync();
     }
+
 }
