@@ -1,0 +1,105 @@
+﻿@using Blazor.Cropper
+@using MudBlazor;
+@inject IJSRuntime js;
+
+<MudPaper Class="">
+    <h3>Cropper</h3>
+    <InputFile id="input1" OnChange="OnInputFileChange"></InputFile>
+
+    @if (file != null)
+    {
+        <Blazor.Cropper.Cropper
+            MaxCropedHeight="500"
+            MaxCropedWidth="500"
+            CropperHeight="600"
+            AspectRatio="proportion == 0 ? 1 : proportion"
+            @ref="cropper"
+            RequireAspectRatio="true"
+            InputId="input1"
+            ImageFile="file"
+            @bind-Ratio="ratio"
+            PureCSharpProcessing="false"
+            OnSizeChanged="t =>{ width = t.Item1; height = t.Item2; }">
+        </Blazor.Cropper.Cropper>
+        <footer class="modal-card-foot">
+            @* <MudSlider @bind-Value="proportion" Min="1" Max="8" Color="Color.Info">Value: @proportion.ToString()</MudSlider> *@
+
+            @if (cropper != null)
+            {
+                <div>
+                    width: @width |
+                    height: @height
+                </div>
+                <MudChipSet Filter="filter" SelectedChipChanged="SelectProportion" @bind-SelectedValues="selectedValues">
+                    <MudChip Text="32x32" Value="1"></MudChip>
+                    <MudChip Text="32x64" Value="2"></MudChip>
+                    <MudChip Text="32x48" Value="1.5"></MudChip>
+                </MudChipSet>
+                <span>@proportion</span>
+            }
+
+
+        </footer>
+    }
+    <MudButton @onclick="DoneCrop">Save</MudButton>
+    @if (!string.IsNullOrEmpty(imgUrl) && !parsing)
+    {
+        <img src="@imgUrl"/>
+    }
+</MudPaper>
+
+@code {
+    Blazor.Cropper.Cropper cropper;
+    private ElementReference _image;
+    IBrowserFile file;
+    bool purecs = false;
+    double width;
+    double height;
+    string imgUrl = "";
+    bool parsing = false;
+    double proportion = 1d;
+    double ratio = 1;
+
+    bool filter = true;
+    MudChip selected;
+    private string[]? selectedValues;
+
+    async Task OnInputFileChange(InputFileChangeEventArgs args)
+    {
+        await js.InvokeVoidAsync("console.log", DateTime.Now.ToString());
+        file = args.File;
+    }
+
+    void OnRatioChange(ChangeEventArgs args)
+    {
+        ratio = int.Parse(args.Value.ToString()) / 100.0;
+    }
+
+    async Task DoneCrop()
+    {
+        var args = await cropper.GetCropedResult();
+        file = null;
+        parsing = true;
+        base.StateHasChanged();
+        await Task.Delay(10); // a hack, otherwise prompt won't show
+        await js.InvokeVoidAsync("console.log", "converted!");
+        var base64string = await args.GetBase64Async();
+        imgUrl = $"data:image/png;base64,{base64string}";
+        parsing = false;
+    }
+
+    async void GetCropResult()
+    {
+        var re = await cropper.GetCropedResult();
+        await js.InvokeAsync<Task>("previewResult", _image, re.Img);
+    }
+
+    private void SelectProportion(MudChip chip)
+    {
+        Console.WriteLine("123");
+        selected = chip;
+        if (selectedValues != null)
+            proportion = double.Parse(selectedValues[0]);
+    }
+
+}
