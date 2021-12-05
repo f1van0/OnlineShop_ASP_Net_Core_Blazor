@@ -32,9 +32,6 @@
     {
         @for (int i = 0; i < goodsStats.Length; i++)
         {
-            //buttonStrings.Add("button_"+@goodsStats[i].ID, "Купить");
-            //<button name="button_@goodsStats[i].ID" @onclick="@(e => BuyGoods(@goodsStats[i].ID))">@buttonStrings["button_"+@goodsStats[i].ID]</button>
-
             <GoodItem ID=@goodsStats[i].ID Name=@goodsStats[i].Name Price=@goodsStats[i].Price OnBuyGood="BuyGoods"/>
         }
     }
@@ -90,7 +87,7 @@
     // StateHasChanged();
     }
 
-    private async void Authorize()
+    private async Task Authorize()
     {
         if (username != "" && password != "")
         {

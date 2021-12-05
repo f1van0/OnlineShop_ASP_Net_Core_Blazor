@@ -20,6 +20,9 @@ namespace OnlineShop.Shared
         [Required]
         [StringLength(maximumLength: 16, MinimumLength = 6)]
         public string Password { get; set; }
+        
+        [Required]
+        public int RoleID { get; set; }
 
         [Required]
         [Timestamp]
