@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Shared;
+using System.Threading.Tasks;
 
 namespace OnlineShop.Server.Controllers
 {
@@ -55,13 +56,13 @@ namespace OnlineShop.Server.Controllers
         [Produces("application/json")]
         //С помощью PUT из Body по пришедшим со стороны пользователя credentials, система пытается
         // залогинить (найти сведения, тождественные credentials) и возвращает пользователю результат
-        public ActionResult<User> Put([FromBody] UserCredentials credentials)
+        public async Task<ActionResult<User>> Put([FromBody] UserCredentials credentials)
         {
-            var user = _userRepository.Login(credentials);
-            if (user.Result == null)
+            var user = await _userRepository.Login(credentials);
+            if (user == null)
                 return Unauthorized();
 
-            HttpContext.Response.Cookies.Append("authID", $"{user.Result.ID}");
+            HttpContext.Response.Cookies.Append("authID", $"{user.ID}");
             return Ok(user);
         }
     }

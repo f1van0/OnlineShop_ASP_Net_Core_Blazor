@@ -1,0 +1,86 @@
+﻿@using OnlineShop.Shared
+@inject HttpClient client
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
+
+<MudDialog Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Вход в систему
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTabs Elevation="5" Rounded="true" Centered="true" PanelClass="pa-6">
+            <MudTabPanel Text="Авторизация" ToolTip="ToolTip One">
+                <MudText Typo="Typo.h6">Вход в уже существующую учетную запись</MudText>
+                <br>
+                <MudTextField @bind-Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
+                <MudTextField @bind-Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
+                <MudText Color="Color.Error">@authError</MudText>
+                <br>
+                <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="Authorize" Style="position: center">Войти</MudButton>
+            </MudTabPanel>
+            <MudTabPanel Text="Регистрация" ToolTip="ToolTip Two">
+                <MudText Typo="Typo.h6">Создание новой учетной записи</MudText>
+                <br>
+                <MudTextField @bind-Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
+                <MudTextField @bind-Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
+                <MudTextField @bind-Value="password" Label="Повторите пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
+                <MudText Color="Color.Error">@authError</MudText>
+                <br>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Authorize" Style="position: center">Зарегистрироваться</MudButton>
+            </MudTabPanel>
+        </MudTabs>
+    </DialogContent>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    private DialogOptions dialogOptions = new() {FullWidth = true, CloseButton = true, DisableBackdropClick = true};
+    private UserCredentials _userCredentials;
+    private string username;
+    private string password;
+    private bool authResult = false;
+    private string authError = "";
+
+    private async Task Authorize()
+    {
+        if (username == "" || password == "")
+        {
+            authError = "Заполните пустые поля";
+        }
+        else
+        {
+            UserCredentials userCredentials = new UserCredentials();
+            userCredentials.UserName = username;
+            userCredentials.Password = password;
+
+            var response = await client.PutAsJsonAsync<UserCredentials>("api/Auth", userCredentials);
+            User user = await response.Content.ReadFromJsonAsync<User>();
+
+            if (user.UserName != null)
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+                Snackbar.Clear();
+                Snackbar.Add("Авторизация прошла успешно", Severity.Info);
+                authResult = false;
+            }
+            else
+            {
+                authError = "Неправильное имя пользователя или пароль";
+            }
+        }
+
+        authResult = true;
+    }
+
+    public async Task GoToLogin()
+    {
+        Dialog.Show<LoginDialog>("Login", dialogOptions);
+        MudDialog.Close(DialogResult.Cancel());
+    }
+
+}

@@ -1,5 +1,7 @@
-﻿@using MudBlazor
-@using OnlineShop.Shared
+﻿@using OnlineShop.Shared
+@inject HttpClient client
+@inject ISnackbar Snackbar
+@inject IDialogService Dialog
 
 <MudDialog Options="dialogOptions">
     <TitleContent>
@@ -8,29 +10,64 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudTextField Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense"/>
-        <MudTextField Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+        <MudTextField @bind-Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
+        <MudTextField @bind-Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
+        <MudText Color="Color.Error">@authError</MudText>
+        <MudText>Если у вас нет учетной записи, то вы можете её создать</MudText>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Class="px-10">Отмена</MudButton>
-        <MudButton Color="Color.Info" OnClick="Authorize" Class="px-10">Авторизоваться</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Default" OnClick="GoToRegistration" Style="position: center">Создать учетную запись</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Authorize" Style="position: center">Авторизоваться</MudButton>
     </DialogActions>
 </MudDialog>
+
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-    private DialogOptions dialogOptions = new() { FullWidth = true };
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    private DialogOptions dialogOptions = new() {FullWidth = true, CloseButton = true, DisableBackdropClick = true};
     private UserCredentials _userCredentials;
     private string username;
     private string password;
+    private bool authResult = false;
+    private string authError = "";
 
-    private void Cancel()
+    private async Task Authorize()
     {
-        MudDialog.Cancel();
+        if (username == "" || password == "")
+        {
+            authError = "Заполните пустые поля";
+        }
+        else
+        {
+            UserCredentials userCredentials = new UserCredentials();
+            userCredentials.UserName = username;
+            userCredentials.Password = password;
+
+            var response = await client.PutAsJsonAsync<UserCredentials>("api/Auth", userCredentials);
+            User user = await response.Content.ReadFromJsonAsync<User>();
+
+            if (user.UserName != null)
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+                Snackbar.Clear();
+                Snackbar.Add("Авторизация прошла успешно", Severity.Info);
+                authResult = false;
+            }
+            else
+            {
+                authError = "Неправильное имя пользователя или пароль";
+            }
+        }
+
+        authResult = true;
     }
 
-    private void Authorize()
+    public async Task GoToRegistration()
     {
-        //if (result)
-        MudDialog.Close();
+        Dialog.Show<AuthDialog>("Register", dialogOptions);
+        MudDialog.Close(DialogResult.Cancel());
     }
+
 }

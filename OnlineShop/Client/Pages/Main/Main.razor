@@ -1,32 +1,16 @@
 ﻿@page "/Main";
 @layout MainLayout;
 @using OnlineShop.Shared
+@using OnlineShop.Client.Pages.Auth
 @inject HttpClient client
 @inject ISnackbar Snackbar
+@inject IDialogService Dialog
 
 <MudContainer>
-
-    <MudDialog @bind-IsVisible="visible" Options="dialogOptions">
-        <TitleContent>
-            <MudText Typo="Typo.h6">
-                Авторизация
-            </MudText>
-        </TitleContent>
-        <DialogContent>
-            <MudTextField @bind-Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense"/>
-            <MudTextField @bind-Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense"/>
-        </DialogContent>
-        <DialogActions>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Authorize">Авторизоваться</MudButton>
-        </DialogActions>
-    </MudDialog>
-
     @* <MudButton Color="Color.Dark" @onclick="OpenLoginDialog">Normal Snackbar</MudButton> *@
     @if (goodsStats == null)
     {
-        <p>
-            <em>Loading...</em>
-        </p>
+        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
     }
     else if (goodsStats != null)
     {
@@ -43,10 +27,9 @@
     private string test;
 
     //Спавн, значения и прочее для модалки с логином
-    private bool visible = false;
     private string username;
     private string password;
-    private DialogOptions dialogOptions = new() {FullWidth = false, CloseButton = true, DisableBackdropClick = true};
+    
 
     public async Task BuyGoods(int goodsID)
     {
@@ -56,9 +39,11 @@
         switch (result)
         {
             case ResponseStatus.Completed:
+                Snackbar.Clear();
                 Snackbar.Add("Успешно куплено", Severity.Success);
                 break;
             case ResponseStatus.Failed:
+                Snackbar.Clear();
                 Snackbar.Add("Произошла ошибка при покупке", Severity.Error);
                 break;
             case ResponseStatus.NotAuthorized:
@@ -71,6 +56,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
         try
         {
             goodsStats = await client.GetFromJsonAsync<GoodsStats[]>("api/Catalog");
@@ -82,25 +68,7 @@
 
     private async Task OpenLoginDialog()
     {
-        visible = true;
-        Console.WriteLine(visible);
+        Dialog.Show<AuthDialog>();
     // StateHasChanged();
     }
-
-    private async Task Authorize()
-    {
-        if (username != "" && password != "")
-        {
-            UserCredentials userCredentials = new UserCredentials();
-            userCredentials.UserName = username;
-            userCredentials.Password = password;
-
-            var response = await client.PutAsJsonAsync<UserCredentials>("api/Auth", userCredentials);
-            User user = await response.Content.ReadFromJsonAsync<User>();
-
-            if (user != null)
-                visible = false;
-        }
-    }
-    
 }
