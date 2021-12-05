@@ -32,10 +32,10 @@ namespace OnlineShop.Server.DB
             return users.FirstOrDefault();
         }
 
-        public async Task<bool> UserExist(string login)
+        public async Task<bool> UserExist(string username)
         {
             string sql = "SELECT * FROM online_shop.users WHERE UserName = @Username;";
-            var users = await _db.Select<User, dynamic>(sql, new { Username = login });
+            var users = await _db.Select<User, dynamic>(sql, new { Username = username });
             
             if (users.FirstOrDefault() != null)
                 return true;

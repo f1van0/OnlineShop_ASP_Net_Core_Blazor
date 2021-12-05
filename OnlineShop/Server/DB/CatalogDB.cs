@@ -1,5 +1,6 @@
 ﻿using OnlineShop.Shared;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OnlineShop.Server.DB
@@ -20,7 +21,7 @@ namespace OnlineShop.Server.DB
             return goods;
         }
         
-        public async Task BuyGoods(int goodsID, int userID)
+        public async Task BuyGoods(int userID, int goodsID)
         {
             string sql = "INSERT INTO goods_operations(UserID, GoodsID) Values(@UserID, @GoodsID);";
             var buy = await _db.Query<dynamic>(sql, new { UserID = userID, GoodsID = goodsID});

@@ -8,11 +8,10 @@ namespace OnlineShop.Shared
 
         [Required] public string Name { get; set; }
         
-        [Required] public int Price { get; set; }
-        
-        [Required] public string ImageSize { get; set; }
+        [Required] public int SizeID { get; set; }
 
         [Required] public int ColorPaletteID { get; set; }
+        [Required] public int Price { get; set; }
 
         [Required] public string Description { get; set; }
     }

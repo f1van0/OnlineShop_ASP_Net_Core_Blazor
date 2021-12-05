@@ -12,6 +12,6 @@ namespace OnlineShop.Shared
 
         Task<User> Login(UserCredentials credentials);
 
-        Task<bool> UserExist(string login);
+        Task<bool> UserExist(string username);
     }
 }

@@ -1,14 +1,27 @@
 ﻿@page "/Main";
-@using Shared;
-@using OnlineShop.Shared
-@using OnlineShop.Server.Controllers
 @layout MainLayout;
-@using MudBlazor
+@using OnlineShop.Shared
 @inject HttpClient client
 @inject ISnackbar Snackbar
 
 <MudContainer>
-    <MudButton Color="Color.Dark" @onclick="@(() => Snackbar.Add("The reactor type is RBMK-1000", Severity.Normal))">Normal Snackbar</MudButton>
+
+    <MudDialog @bind-IsVisible="visible" Options="dialogOptions">
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                Авторизация
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudTextField @bind-Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+            <MudTextField @bind-Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+        </DialogContent>
+        <DialogActions>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Authorize">Авторизоваться</MudButton>
+        </DialogActions>
+    </MudDialog>
+
+    @* <MudButton Color="Color.Dark" @onclick="OpenLoginDialog">Normal Snackbar</MudButton> *@
     @if (goodsStats == null)
     {
         <p>
@@ -22,7 +35,7 @@
             //buttonStrings.Add("button_"+@goodsStats[i].ID, "Купить");
             //<button name="button_@goodsStats[i].ID" @onclick="@(e => BuyGoods(@goodsStats[i].ID))">@buttonStrings["button_"+@goodsStats[i].ID]</button>
 
-            <Good ID=@goodsStats[i].ID Name=@goodsStats[i].Name Price=@goodsStats[i].Price OnBuyGood="BuyGoods"/>
+            <GoodItem ID=@goodsStats[i].ID Name=@goodsStats[i].Name Price=@goodsStats[i].Price OnBuyGood="BuyGoods"/>
         }
     }
 </MudContainer>
@@ -30,17 +43,33 @@
 @code {
     //private Dictionary<string, string> buttonStrings;
     private GoodsStats[] goodsStats;
+    private string test;
 
-    public async void BuyGoods(int goodsID)
+    //Спавн, значения и прочее для модалки с логином
+    private bool visible = false;
+    private string username;
+    private string password;
+    private DialogOptions dialogOptions = new() {FullWidth = false, CloseButton = true, DisableBackdropClick = true};
+
+    public async Task BuyGoods(int goodsID)
     {
-        var response = await client.PostAsJsonAsync<PurchaseAction>("api/Catalog", new PurchaseAction() {GoodsId = goodsID, UserId = 23});
-        bool result = await response.Content.ReadFromJsonAsync<bool>();
-    //if (result)
-    //    buttonStrings["button_" + goodsID] = "Куплено";
-        if (result)
-            Snackbar.Add("Успешно куплено", Severity.Success);
-        else
-            Snackbar.Add("Произошла ошибка при покупке", Severity.Error);
+        var response = await client.PostAsJsonAsync<int>("api/Catalog", goodsID);
+        ResponseStatus result = await response.Content.ReadFromJsonAsync<ResponseStatus>();
+
+        switch (result)
+        {
+            case ResponseStatus.Completed:
+                Snackbar.Add("Успешно куплено", Severity.Success);
+                break;
+            case ResponseStatus.Failed:
+                Snackbar.Add("Произошла ошибка при покупке", Severity.Error);
+                break;
+            case ResponseStatus.NotAuthorized:
+                await OpenLoginDialog();
+                break;
+            default:
+                break;
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -54,4 +83,27 @@
         }
     }
 
+    private async Task OpenLoginDialog()
+    {
+        visible = true;
+        Console.WriteLine(visible);
+    // StateHasChanged();
+    }
+
+    private async void Authorize()
+    {
+        if (username != "" && password != "")
+        {
+            UserCredentials userCredentials = new UserCredentials();
+            userCredentials.UserName = username;
+            userCredentials.Password = password;
+
+            var response = await client.PutAsJsonAsync<UserCredentials>("api/Auth", userCredentials);
+            User user = await response.Content.ReadFromJsonAsync<User>();
+
+            if (user != null)
+                visible = false;
+        }
+    }
+    
 }

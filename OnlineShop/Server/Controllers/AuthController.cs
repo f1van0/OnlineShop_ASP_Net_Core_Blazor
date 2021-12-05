@@ -61,7 +61,7 @@ namespace OnlineShop.Server.Controllers
             if (user.Result == null)
                 return Unauthorized();
 
-            HttpContext.Response.Cookies.Append("auth", $"{user.Result.UserName}, {user.Result.Password}");
+            HttpContext.Response.Cookies.Append("authID", $"{user.Result.ID}");
             return Ok(user);
         }
     }

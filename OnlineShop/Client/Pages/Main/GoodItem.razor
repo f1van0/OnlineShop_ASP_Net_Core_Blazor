@@ -1,0 +1,35 @@
+﻿<MudCard Class="my-4">
+    <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">@Name</MudText>
+            </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudText Typo="Typo.body2">@Price</MudText>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" @onclick="OnBuy">Купить</MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code{
+    
+    //<MudButton Variant="Variant.Outlined" Color="Color.Primary" @onclick="OnBuy"></MudButton>
+
+    [Parameter]
+    public int ID { get; set; }
+
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public int Price { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnBuyGood { get; set; }
+
+    private void OnBuy()
+    {
+        OnBuyGood.InvokeAsync(ID);
+    }
+}

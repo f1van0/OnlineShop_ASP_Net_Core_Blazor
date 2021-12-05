@@ -1,0 +1,36 @@
+﻿@using MudBlazor
+@using OnlineShop.Shared
+
+<MudDialog Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Авторизация
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+        <MudTextField Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Class="px-10">Отмена</MudButton>
+        <MudButton Color="Color.Info" OnClick="Authorize" Class="px-10">Авторизоваться</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    private DialogOptions dialogOptions = new() { FullWidth = true };
+    private UserCredentials _userCredentials;
+    private string username;
+    private string password;
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void Authorize()
+    {
+        //if (result)
+        MudDialog.Close();
+    }
+}
