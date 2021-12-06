@@ -1,0 +1,43 @@
+﻿.background {
+    z-index: -1;
+    background: url("/static/halloween.jpg") repeat;
+    background-size: 40%;
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+}
+
+main {
+    display: flex;
+    flex-grow: 1;
+    height: 50vh;
+
+    align-items: center;
+    justify-content: center;
+}
+
+h1 {
+    font-size: 20em;
+    line-height: 0.8em;
+    text-align: center;
+}
+
+h1.error {
+    text-shadow: -4px -4px 0 #ffe95e, 4px -4px 0 #ffe95e, -4px 4px 0 #ffe95e, 4px 4px 0 #ffe95e;
+}
+
+h2 {
+    font-size: xx-large;
+    text-align: center;
+}
+
+h3 {
+    font-size: x-large;
+    text-align: center;
+}
+
+.error {
+    font-family: 'Exo 2', sans-serif;
+    color: #822314;
+    text-shadow: -1px -1px 0 #ffe95e, 1px -1px 0 #ffe95e, -1px 1px 0 #ffe95e, 1px 1px 0 #ffe95e;
+}
