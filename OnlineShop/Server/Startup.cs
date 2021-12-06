@@ -2,12 +2,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using OnlineShop.Server.DB;
-using OnlineShop.Server.DB.Mappers;
-using OnlineShop.Shared;
 using System;
 using System.IO;
 using System.Reflection;
@@ -75,6 +74,13 @@ namespace OnlineShop.Server
 
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(env.ContentRootPath, "static-files")),
+                RequestPath = "/static",
+            });
 
             app.UseRouting();
 
