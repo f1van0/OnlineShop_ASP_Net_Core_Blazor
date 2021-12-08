@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -5,12 +7,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OnlineShop.Server.DB;
 using System;
 using System.IO;
 using System.Reflection;
 using System.Data.Common;
+using System.Text;
+using System.Text.Unicode;
 
 namespace OnlineShop.Server
 {
@@ -33,6 +38,23 @@ namespace OnlineShop.Server
                 conn.Open();
                 return conn;
             });
+
+            string securityPrivateKey = Configuration.GetValue<string>("Auth:PrivateKey");
+            var secKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityPrivateKey));
+            services.AddSingleton(secKey);
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateAudience = true,
+                        ValidateIssuer = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = "blazor.app",
+                        ValidAudience = "blazor.users",
+                        IssuerSigningKey = secKey
+                    });
 
 
             services.RegisterServices();
@@ -84,10 +106,21 @@ namespace OnlineShop.Server
 
             app.UseRouting();
 
+            var enabledAuth = Configuration.GetValue<bool?>("Auth:Enable") ?? false;
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapRazorPages();
-                endpoints.MapControllers();
+                if (enabledAuth)
+                {
+                    endpoints.MapRazorPages();
+                    endpoints.MapControllers();
+                }
+                else
+                {
+                    endpoints.MapRazorPages().WithMetadata(new AllowAnonymousAttribute());
+                    endpoints.MapControllers().WithMetadata(new AllowAnonymousAttribute());
+                }
                 endpoints.MapFallbackToFile("index.html");
             });
         }
