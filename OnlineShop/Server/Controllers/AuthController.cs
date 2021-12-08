@@ -38,7 +38,8 @@ namespace OnlineShop.Server.Controllers
         // зарегистрировать его в системе и возвращает пользователю результат
         public async Task<ActionResult> Post([FromBody] UserCredentials credentials)
         {
-            if (_userRepository.UserExist(credentials.UserName).Result)
+            bool isExists = await _userRepository.UserExist(credentials.UserName);
+            if (isExists)
                 return BadRequest();
 
             var user = await _userRepository.Register(credentials);
@@ -69,7 +70,7 @@ namespace OnlineShop.Server.Controllers
         // залогинить (найти сведения, тождественные credentials) и возвращает пользователю результат
         public async Task<ActionResult> Put([FromBody] UserCredentials credentials)
         {
-            var user = await _userRepository.Login(credentials);
+            User user = await _userRepository.Login(credentials);
             if (user == null)
                 return Unauthorized();
 
