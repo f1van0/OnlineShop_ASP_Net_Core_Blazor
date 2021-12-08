@@ -2,6 +2,7 @@
 @layout MainLayout;
 @using OnlineShop.Shared
 @using OnlineShop.Client.Pages.Auth
+@using System.Net
 @inject HttpClient client
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
@@ -34,19 +35,19 @@
     public async Task BuyGoods(int goodsID)
     {
         var response = await client.PostAsJsonAsync<int>("api/Catalog", goodsID);
-        ResponseStatus result = await response.Content.ReadFromJsonAsync<ResponseStatus>();
+        // ResponseStatus result = await response.Content.ReadFromJsonAsync<ResponseStatus>();
 
-        switch (result)
+        switch (response.StatusCode)
         {
-            case ResponseStatus.Completed:
+            case HttpStatusCode.OK:
                 Snackbar.Clear();
                 Snackbar.Add("Успешно куплено", Severity.Success);
                 break;
-            case ResponseStatus.Failed:
+            case HttpStatusCode.BadRequest:
                 Snackbar.Clear();
                 Snackbar.Add("Произошла ошибка при покупке", Severity.Error);
                 break;
-            case ResponseStatus.NotAuthorized:
+            case HttpStatusCode.Unauthorized:
                 await OpenLoginDialog();
                 break;
             default:
