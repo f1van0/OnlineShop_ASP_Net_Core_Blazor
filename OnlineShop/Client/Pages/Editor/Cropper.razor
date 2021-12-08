@@ -74,7 +74,7 @@
     bool filter = true;
     MudChip selected;
     private string[]? selectedValues;
-    
+
     private Rgba32[,] pixelizeImage;
     private Rgba32[] grayscalePalette = new Rgba32[7]
     {
@@ -119,8 +119,8 @@
     private struct Sums
     {
         /// <summary>
-    /// Gets or sets the alpha component.
-    /// </summary>
+        /// Gets or sets the alpha component.
+        /// </summary>
         public int A
         {
             get;
@@ -128,8 +128,8 @@
         }
 
         /// <summary>
-    /// Gets or sets the red component.
-    /// </summary>
+        /// Gets or sets the red component.
+        /// </summary>
         public int R
         {
             get;
@@ -137,8 +137,8 @@
         }
 
         /// <summary>
-    /// Gets or sets the blue component.
-    /// </summary>
+        /// Gets or sets the blue component.
+        /// </summary>
         public int B
         {
             get;
@@ -146,8 +146,8 @@
         }
 
         /// <summary>
-    /// Gets or sets the green component.
-    /// </summary>
+        /// Gets or sets the green component.
+        /// </summary>
         public int G
         {
             get;
@@ -155,15 +155,15 @@
         }
 
         /// <summary>
-    /// Gets or sets the total count.
-    /// </summary>
+        /// Gets or sets the total count.
+        /// </summary>
         public int T
         {
             get;
             set;
         }
     }
-    
+
     public void Pixelize(Image<Rgba32> image)
     {
         //50x50
@@ -171,7 +171,10 @@
         int blockSizeY = (int)MathF.Truncate(image.Height / 32);
         pixelizeImage = new Rgba32[32, 32];
 
-    //                  image.Width += blockSizeX
+        float minGrayscaled = 1.1f;
+        float maxGrayscaled = -0.1f;
+
+        //                  image.Width += blockSizeX
         for (int x = 0; x < 32; x++)
         {
             //                  image.Height += blockSizeY
@@ -196,16 +199,45 @@
                         sums.T++;
                     }
                 }
-                
+
                 //Контрасность, суть алгоритма
                 //Найти диапазон цветов, использующихся в пикселизованной картинке с argb glayscale цветами
                 //От каждого цвета матрицы пикс. изображения отнять минимальное значение цвета
                 //разделить получившейся цвет на определенную константу, которая распределяет цвета по палитрам
-                
+
                 Rgba32 average = new Rgba32((float)sums.R / sums.T / 255, (float)sums.G / sums.T / 255, (float)sums.B / sums.T / 255, 1);
                 float grayscaled = (0.2126f * average.R + 0.7152f * average.G + 0.0722f * average.B) / 255;
+
+                /*
+                //нормальное распределение цветов
                 int paletteColorIndex = (int)(grayscaled / 0.16669);
                 pixelizeImage[x, y] = grayscalePalette[paletteColorIndex];
+                */
+
+                /*
+                //повышенная контранстность
+                 */
+                if (grayscaled > maxGrayscaled)
+                    maxGrayscaled = grayscaled;
+                else if (grayscaled < minGrayscaled)
+                    minGrayscaled = grayscaled;
+
+                pixelizeImage[x, y] = new Rgba32(grayscaled, grayscaled, grayscaled, 1);
+            }
+        }
+
+        float grayscaledRange = maxGrayscaled - minGrayscaled;
+        float divider = grayscaledRange / 6;
+        int colorIndex;
+        for (int x = 0; x < pixelizeImage.GetLength(0); x++)
+        {
+            for (int y = 0; y < pixelizeImage.GetLength(1); y++)
+            {
+                float t = (float)pixelizeImage[x, y].R / 255;
+                colorIndex = (int)((t - minGrayscaled) / divider);
+                //if (colorIndex > 6) colorIndex = 6;
+                //else if (colorIndex < 0) colorIndex = 0;
+                pixelizeImage[x, y] = grayscalePalette[colorIndex];
             }
         }
     }
