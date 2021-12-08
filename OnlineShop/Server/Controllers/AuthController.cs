@@ -49,9 +49,8 @@ namespace OnlineShop.Server.Controllers
             var jwtToken = NewToken(user.ID, user.RoleID == 2);
 
 
-            HttpContext.Response.Headers.Append("Authorization", "Basic " + jwtToken);
+            HttpContext.Response.Headers.Append("WWW-Authenticate", "Bearer " + jwtToken);
             HttpContext.Response.Cookies.Append("_token", jwtToken);
-            // HttpContext.Response.Cookies.Append("auth", $"{user.UserName}, {user.Password}");
             return Ok();
         }
 
@@ -76,9 +75,8 @@ namespace OnlineShop.Server.Controllers
 
             var jwtToken = NewToken(user.ID, user.RoleID == 2);
 
-            HttpContext.Response.Headers.Append("Authorization", "Basic " + jwtToken);
+            HttpContext.Response.Headers.Append("WWW-Authenticate", "Bearer " + jwtToken);
             HttpContext.Response.Cookies.Append("_token", jwtToken);
-            // HttpContext.Response.Cookies.Append("authID", $"{user.ID}");
             return Ok(user);
         }
 

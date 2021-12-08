@@ -15,7 +15,6 @@ using System.IO;
 using System.Reflection;
 using System.Data.Common;
 using System.Text;
-using System.Text.Unicode;
 
 namespace OnlineShop.Server
 {
@@ -45,16 +44,20 @@ namespace OnlineShop.Server
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
-                    options.TokenValidationParameters = new TokenValidationParameters()
                     {
-                        ValidateAudience = true,
-                        ValidateIssuer = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = "blazor.app",
-                        ValidAudience = "blazor.users",
-                        IssuerSigningKey = secKey
-                    });
+                        options.SaveToken = true;
+                        options.RequireHttpsMetadata = true;
+                        options.TokenValidationParameters = new TokenValidationParameters()
+                        {
+                            ValidateAudience = true,
+                            ValidateIssuer = true,
+                            ValidateIssuerSigningKey = true,
+                            ValidIssuer = "blazor.app",
+                            ValidAudience = "blazor.users",
+                            IssuerSigningKey = secKey
+                        };
+                    }
+                );
 
 
             services.RegisterServices();
@@ -107,6 +110,7 @@ namespace OnlineShop.Server
             app.UseRouting();
 
             var enabledAuth = Configuration.GetValue<bool?>("Auth:Enable") ?? false;
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -121,6 +125,7 @@ namespace OnlineShop.Server
                     endpoints.MapRazorPages().WithMetadata(new AllowAnonymousAttribute());
                     endpoints.MapControllers().WithMetadata(new AllowAnonymousAttribute());
                 }
+
                 endpoints.MapFallbackToFile("index.html");
             });
         }
