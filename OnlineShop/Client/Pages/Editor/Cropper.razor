@@ -1,5 +1,10 @@
 ﻿@using Blazor.Cropper
-@using MudBlazor;
+@using System.Drawing;
+@using System.IO
+@using SixLabors.ImageSharp
+@using SixLabors.ImageSharp.Formats
+@using SixLabors.ImageSharp.Formats.Bmp
+@using SixLabors.ImageSharp.PixelFormats
 @inject IJSRuntime js;
 
 <MudPaper Class="">
@@ -41,10 +46,16 @@
 
         </footer>
     }
+    
     <MudButton @onclick="DoneCrop">Save</MudButton>
     @if (!string.IsNullOrEmpty(imgUrl) && !parsing)
     {
         <img src="@imgUrl"/>
+    }
+    
+    @if (pixelizeImage != null)
+    {
+        <Preview Pixels="pixelizeImage"/>
     }
 </MudPaper>
 
@@ -63,6 +74,19 @@
     bool filter = true;
     MudChip selected;
     private string[]? selectedValues;
+    
+    private Rgba32[,] pixelizeImage;
+    private Rgba32[] grayscalePalette = new Rgba32[7]
+    {
+        new Rgba32(0.1428f, 0.1428f, 0.1428f, 1),
+        new Rgba32(0.2856f, 0.2856f, 0.2856f, 1),
+        new Rgba32(0.4284f, 0.4284f, 0.4284f, 1),
+        new Rgba32(0.5712f, 0.5712f, 0.5712f, 1),
+        new Rgba32(0.714f, 0.714f, 0.714f, 1),
+        new Rgba32(0.8568f, 0.8568f, 0.8568f, 1),
+        new Rgba32(1, 1, 1, 1),
+        //new Rgba32(0.9996f, 0.9996f, 0.9996f, 1),
+    };
 
     async Task OnInputFileChange(InputFileChangeEventArgs args)
     {
@@ -84,8 +108,106 @@
         await Task.Delay(10); // a hack, otherwise prompt won't show
         await js.InvokeVoidAsync("console.log", "converted!");
         var base64string = await args.GetBase64Async();
+        byte[] bitmap = await new ImageCroppedResult(base64string).GetDataAsync();
+        Image<Rgba32> image = Image.Load(bitmap);
         imgUrl = $"data:image/png;base64,{base64string}";
+
+        Pixelize(image);
         parsing = false;
+    }
+
+    private struct Sums
+    {
+        /// <summary>
+    /// Gets or sets the alpha component.
+    /// </summary>
+        public int A
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+    /// Gets or sets the red component.
+    /// </summary>
+        public int R
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+    /// Gets or sets the blue component.
+    /// </summary>
+        public int B
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+    /// Gets or sets the green component.
+    /// </summary>
+        public int G
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+    /// Gets or sets the total count.
+    /// </summary>
+        public int T
+        {
+            get;
+            set;
+        }
+    }
+    
+    public void Pixelize(Image<Rgba32> image)
+    {
+        //50x50
+        int blockSizeX = (int)MathF.Truncate(image.Width / 32);
+        int blockSizeY = (int)MathF.Truncate(image.Height / 32);
+        pixelizeImage = new Rgba32[32, 32];
+
+    //                  image.Width += blockSizeX
+        for (int x = 0; x < 32; x++)
+        {
+            //                  image.Height += blockSizeY
+            for (int y = 0; y < 32; y++)
+            {
+                var sums = new Sums();
+
+                for (int xx = 0; xx < blockSizeX; ++xx)
+                {
+                    for (int yy = 0; yy < blockSizeY; ++yy)
+                    {
+                        if (x * blockSizeY + xx >= image.Width || y * blockSizeY + yy >= image.Height)
+                        {
+                            continue;
+                        }
+
+                        Rgba32 color = image[x * blockSizeY + xx, y * blockSizeY + yy];
+                        sums.A += color.A;
+                        sums.R += color.R;
+                        sums.G += color.G;
+                        sums.B += color.B;
+                        sums.T++;
+                    }
+                }
+                
+                //Контрасность, суть алгоритма
+                //Найти диапазон цветов, использующихся в пикселизованной картинке с argb glayscale цветами
+                //От каждого цвета матрицы пикс. изображения отнять минимальное значение цвета
+                //разделить получившейся цвет на определенную константу, которая распределяет цвета по палитрам
+                
+                Rgba32 average = new Rgba32((float)sums.R / sums.T / 255, (float)sums.G / sums.T / 255, (float)sums.B / sums.T / 255, 1);
+                float grayscaled = (0.2126f * average.R + 0.7152f * average.G + 0.0722f * average.B) / 255;
+                int paletteColorIndex = (int)(grayscaled / 0.16669);
+                pixelizeImage[x, y] = grayscalePalette[paletteColorIndex];
+            }
+        }
     }
 
     async void GetCropResult()

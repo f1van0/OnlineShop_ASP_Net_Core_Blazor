@@ -1,0 +1,20 @@
+﻿@using SixLabors.ImageSharp.PixelFormats
+
+<div>
+    @for (int y = 0; y < Pixels.GetLength(1); y++)
+    {
+        <div class="cell-row">
+            @for (int x = 0; x < Pixels.GetLength(0); x++)
+            {
+                <div class="cell" style="background-color: #@Pixels[x, y].ToHex()"></div>
+            }
+        </div>
+    }
+</div>
+
+@code{
+
+    [Parameter]
+    public Rgba32[,] Pixels { get; set; }
+
+}
