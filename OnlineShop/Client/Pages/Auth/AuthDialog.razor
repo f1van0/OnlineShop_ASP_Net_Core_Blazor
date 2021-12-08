@@ -10,25 +10,21 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudTabs Elevation="5" Rounded="true" Centered="true" PanelClass="pa-6">
+        <MudTabs Elevation="0" Rounded="true" Centered="true" PanelClass="pa-6">
             <MudTabPanel Text="Авторизация" ToolTip="ToolTip One">
-                <MudText Typo="Typo.h6">Вход в уже существующую учетную запись</MudText>
-                <br>
                 <MudTextField @bind-Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
                 <MudTextField @bind-Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
-                <MudText Color="Color.Error">@authError</MudText>
+                <MudText Color="Color.Error">@loginError</MudText>
                 <br>
-                <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="Authorize" Style="position: center">Войти</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Authorize" FullWidth="true">Войти</MudButton>
             </MudTabPanel>
             <MudTabPanel Text="Регистрация" ToolTip="ToolTip Two">
-                <MudText Typo="Typo.h6">Создание новой учетной записи</MudText>
+                <MudTextField @bind-Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@registerResult"/>
+                <MudTextField @bind-Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@registerResult"/>
+                <MudTextField @bind-Value="passwordRepeated" Label="Повторите пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@registerResult"/>
+                <MudText Color="Color.Error">@registerError</MudText>
                 <br>
-                <MudTextField @bind-Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
-                <MudTextField @bind-Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
-                <MudTextField @bind-Value="password" Label="Повторите пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
-                <MudText Color="Color.Error">@authError</MudText>
-                <br>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Authorize" Style="position: center">Зарегистрироваться</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Register" FullWidth="true">Зарегистрироваться</MudButton>
             </MudTabPanel>
         </MudTabs>
     </DialogContent>
@@ -40,17 +36,19 @@
     MudDialogInstance MudDialog { get; set; }
 
     private DialogOptions dialogOptions = new() {FullWidth = true, CloseButton = true, DisableBackdropClick = true};
-    private UserCredentials _userCredentials;
     private string username;
     private string password;
+    private string passwordRepeated;
     private bool authResult = false;
-    private string authError = "";
+    private bool registerResult = false;
+    private string loginError = "";
+    private string registerError = "";
 
     private async Task Authorize()
     {
         if (username == "" || password == "")
         {
-            authError = "Заполните пустые поля";
+            loginError = "Заполните пустые поля";
         }
         else
         {
@@ -70,17 +68,45 @@
             }
             else
             {
-                authError = "Неправильное имя пользователя или пароль";
+                loginError = "Неправильное имя пользователя или пароль";
             }
         }
 
         authResult = true;
     }
 
-    public async Task GoToLogin()
+    public async Task Register()
     {
-        Dialog.Show<LoginDialog>("Login", dialogOptions);
-        MudDialog.Close(DialogResult.Cancel());
+        if (username == "" || password == "" || passwordRepeated == "")
+        {
+            registerError = "Заполните пустые поля";
+        }
+        else if (passwordRepeated != password)
+        {
+            registerError = "Пароли не совпадают";
+        }
+        else
+        {
+            UserCredentials userCredentials = new UserCredentials();
+            userCredentials.UserName = username;
+            userCredentials.Password = password;
+            
+            var response = await client.PostAsJsonAsync<UserCredentials>("api/Auth", userCredentials);
+            User user = await response.Content.ReadFromJsonAsync<User>();
+                
+            if (user.UserName != null)
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+                Snackbar.Clear();
+                Snackbar.Add("Регистрация прошла успешно", Severity.Info);
+                registerResult = false;
+            }
+            else
+            {
+                registerError = "Пользователь с таким именем пользователя уже существует";
+            }
+        }
+        
+        registerResult = true;
     }
-
 }

@@ -30,16 +30,18 @@ namespace OnlineShop.Server.Controllers
         [Produces("application/json")]
         //С помощью POST из Body по пришедшим состороны пользователя credentials, система пытается
         // зарегистрировать его в системе и возвращает пользователю результат
-        public ActionResult<User> Post([FromBody] UserCredentials credentials)
+        public async Task<ActionResult<User>> Post([FromBody] UserCredentials credentials)
         {
-            if (_userRepository.UserExist(credentials.UserName).Result)
+            bool isExists = await _userRepository.UserExist(credentials.UserName);
+            if (isExists)
                 return BadRequest();
 
-            var user = _userRepository.Register(credentials);
-            if (user.Result == null)
+            User user = await _userRepository.Register(credentials);
+            if (user == null)
                 return BadRequest();
 
-            HttpContext.Response.Cookies.Append("auth", $"{user.Result.UserName}, {user.Result.Password}");
+            HttpContext.Response.Cookies.Append("auth", $"{user.UserName}, {user.Password}");
+            HttpContext.Response.Cookies.Append("authID", $"{user.ID}");
             return Ok(user);
         }
 
@@ -58,7 +60,7 @@ namespace OnlineShop.Server.Controllers
         // залогинить (найти сведения, тождественные credentials) и возвращает пользователю результат
         public async Task<ActionResult<User>> Put([FromBody] UserCredentials credentials)
         {
-            var user = await _userRepository.Login(credentials);
+            User user = await _userRepository.Login(credentials);
             if (user == null)
                 return Unauthorized();
 
