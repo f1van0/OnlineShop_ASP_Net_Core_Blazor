@@ -2,14 +2,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using OnlineShop.Shared;
 using OnlineShop.Server.DB;
 using OnlineShop.Server.Services;
-using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 
 namespace OnlineShop.Server.Controllers
 {
@@ -41,7 +38,7 @@ namespace OnlineShop.Server.Controllers
         [Produces("application/json")]
         //С помощью POST из Body по пришедшим со стороны пользователя ID товара и ID пользователя, система пытается
         //добавить товар в список покупок
-        public ActionResult<ResponseStatus> Post([FromBody] int goodsID)
+        public ActionResult Post([FromBody] int goodsID)
         {
             _logger.LogInformation("test");
             JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
@@ -50,15 +47,15 @@ namespace OnlineShop.Server.Controllers
             {
                 if (_catalogDb.BuyGoods(payload.UserId, goodsID).IsCompleted)
                 {
-                    return Ok(ResponseStatus.Completed);
+                    return Ok();
                 }
                 else
                 {
-                    return BadRequest(ResponseStatus.Failed);
+                    return BadRequest();
                 }
             }
 
-            return Ok(ResponseStatus.NotAuthorized);
+            return Unauthorized();
         }
     }
 }
