@@ -35,8 +35,8 @@
                     width: @width |
                     height: @height
                 </div>
-                <MudChipSet Filter="filter" SelectedChipChanged="SelectProportion">
-                    <MudChip Text="32x32" Value="1"></MudChip>
+                <MudChipSet Filter="filter" SelectedChipChanged="SelectProportion" Mandatory="true">
+                    <MudChip Default="true" Text="32x32" Value="1"></MudChip>
                     <MudChip Text="32x64" Value="2"></MudChip>
                     <MudChip Text="32x48" Value="1.5"></MudChip>
                 </MudChipSet>
@@ -53,9 +53,9 @@
         <img src="@imgUrl"/>
     }
     
-    @if (pixelizeImage != null)
+    @if (pixelizeHEXImage != null)
     {
-        <Preview Pixels="pixelizeImage"/>
+        <Preview Pixels="pixelizeHEXImage"/>
     }
 </MudPaper>
 
@@ -87,6 +87,8 @@
         new Rgba32(1, 1, 1, 1),
         //new Rgba32(0.9996f, 0.9996f, 0.9996f, 1),
     };
+    private string[,] pixelizeHEXImage;
+    private string[] hexPalette = new string[7] {"#1c1c1c", "#404040", "#616161", "#8a8a8a", "#b3b3b3", "#d9d9d9", "#f5f5f5"};
 
     async Task OnInputFileChange(InputFileChangeEventArgs args)
     {
@@ -170,11 +172,11 @@
         int blockSizeX = (int)MathF.Truncate(image.Width / 32);
         int blockSizeY = (int)MathF.Truncate(image.Height / 32);
         pixelizeImage = new Rgba32[32, 32];
-
+        pixelizeHEXImage = new string[32, 32];
         float minGrayscaled = 1.1f;
         float maxGrayscaled = -0.1f;
 
-        //                  image.Width += blockSizeX
+    //                  image.Width += blockSizeX
         for (int x = 0; x < 32; x++)
         {
             //                  image.Height += blockSizeY
@@ -205,8 +207,8 @@
                 //От каждого цвета матрицы пикс. изображения отнять минимальное значение цвета
                 //разделить получившейся цвет на определенную константу, которая распределяет цвета по палитрам
 
-                Rgba32 average = new Rgba32((float)sums.R / sums.T / 255, (float)sums.G / sums.T / 255, (float)sums.B / sums.T / 255, 1);
-                float grayscaled = (0.2126f * average.R + 0.7152f * average.G + 0.0722f * average.B) / 255;
+                //Rgba32 average = new Rgba32((float)sums.R / sums.T / 255, (float)sums.G / sums.T / 255, (float)sums.B / sums.T / 255, 1);
+                float averageGrayscaled = (sums.R * 0.2126f + sums.G * 0.7152f + sums.B * 0.0722f) / sums.T / 255;
 
                 /*
                 //нормальное распределение цветов
@@ -217,12 +219,12 @@
                 /*
                 //повышенная контранстность
                  */
-                if (grayscaled > maxGrayscaled)
-                    maxGrayscaled = grayscaled;
-                else if (grayscaled < minGrayscaled)
-                    minGrayscaled = grayscaled;
+                if (averageGrayscaled > maxGrayscaled)
+                    maxGrayscaled = averageGrayscaled;
+                else if (averageGrayscaled < minGrayscaled)
+                    minGrayscaled = averageGrayscaled;
 
-                pixelizeImage[x, y] = new Rgba32(grayscaled, grayscaled, grayscaled, 1);
+                pixelizeImage[x, y] = new Rgba32(averageGrayscaled, averageGrayscaled, averageGrayscaled, 1);
             }
         }
 
@@ -238,6 +240,7 @@
                 //if (colorIndex > 6) colorIndex = 6;
                 //else if (colorIndex < 0) colorIndex = 0;
                 pixelizeImage[x, y] = grayscalePalette[colorIndex];
+                pixelizeHEXImage[x, y] = hexPalette[colorIndex];
             }
         }
     }

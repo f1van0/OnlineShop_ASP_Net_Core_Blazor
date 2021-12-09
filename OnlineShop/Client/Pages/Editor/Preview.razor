@@ -6,7 +6,7 @@
         <div class="cell-row">
             @for (int x = 0; x < Pixels.GetLength(0); x++)
             {
-                <div class="cell" style="background-color: #@Pixels[x, y].ToHex()"></div>
+                <div class="cell" style="background-color: @Pixels[x, y]"></div>
             }
         </div>
     }
@@ -15,6 +15,6 @@
 @code{
 
     [Parameter]
-    public Rgba32[,] Pixels { get; set; }
+    public string[,] Pixels { get; set; }
 
 }
