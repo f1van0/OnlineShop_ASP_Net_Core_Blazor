@@ -3,15 +3,18 @@
 @using OnlineShop.Shared
 @using OnlineShop.Client.Pages.Auth
 @using System.Net
+@using OnlineShop.Client.Services.State
+@using OnlineShop.Server.DB.Mappers
 @inject HttpClient client
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
+@inject AppState _appState
 
 <MudContainer>
     @* <MudButton Color="Color.Dark" @onclick="OpenLoginDialog">Normal Snackbar</MudButton> *@
     @if (goodsStats == null)
     {
-        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+        <MudProgressCircular Color="Color.Default" Indeterminate="true"/>
     }
     else if (goodsStats != null)
     {
@@ -25,17 +28,18 @@
 @code {
     //private Dictionary<string, string> buttonStrings;
     private GoodsStats[] goodsStats;
+    private ColorPalette[] colorPalettes;
     private string test;
 
     //Спавн, значения и прочее для модалки с логином
     private string username;
     private string password;
-    
+
 
     public async Task BuyGoods(int goodsID)
     {
         var response = await client.PostAsJsonAsync<int>("api/Catalog", goodsID);
-        // ResponseStatus result = await response.Content.ReadFromJsonAsync<ResponseStatus>();
+    // ResponseStatus result = await response.Content.ReadFromJsonAsync<ResponseStatus>();
 
         switch (response.StatusCode)
         {
@@ -58,13 +62,7 @@
     protected override async Task OnInitializedAsync()
     {
         Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-        try
-        {
-            goodsStats = await client.GetFromJsonAsync<GoodsStats[]>("api/Catalog");
-        }
-        catch
-        {
-        }
+        goodsStats = await client.GetFromJsonAsync<GoodsStats[]>("api/Catalog");
     }
 
     private async Task OpenLoginDialog()
@@ -72,4 +70,5 @@
         Dialog.Show<AuthDialog>();
     // StateHasChanged();
     }
+
 }
