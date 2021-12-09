@@ -1,6 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using OnlineShop.Server.Services;
 using OnlineShop.Shared;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OnlineShop.Server.Controllers
@@ -10,10 +16,12 @@ namespace OnlineShop.Server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private SymmetricSecurityKey _securityKey;
 
         //Первичная инициализация _userRepository для дальнейшей работы
-        public AuthController(IUserRepository userRepository)
+        public AuthController(IUserRepository userRepository, SymmetricSecurityKey securityKey)
         {
+            _securityKey = securityKey;
             _userRepository = userRepository;
         }
 
@@ -30,19 +38,22 @@ namespace OnlineShop.Server.Controllers
         [Produces("application/json")]
         //С помощью POST из Body по пришедшим состороны пользователя credentials, система пытается
         // зарегистрировать его в системе и возвращает пользователю результат
-        public async Task<ActionResult<User>> Post([FromBody] UserCredentials credentials)
+        public async Task<ActionResult> Post([FromBody] UserCredentials credentials)
         {
             bool isExists = await _userRepository.UserExist(credentials.UserName);
             if (isExists)
                 return BadRequest();
 
-            User user = await _userRepository.Register(credentials);
+            var user = await _userRepository.Register(credentials);
             if (user == null)
                 return BadRequest();
 
-            HttpContext.Response.Cookies.Append("auth", $"{user.UserName}, {user.Password}");
-            HttpContext.Response.Cookies.Append("authID", $"{user.ID}");
-            return Ok(user);
+            var jwtToken = NewToken(user.ID, user.RoleID == 2);
+
+
+            HttpContext.Response.Headers.Append("WWW-Authenticate", "Bearer " + jwtToken);
+            HttpContext.Response.Cookies.Append("_token", jwtToken);
+            return Ok();
         }
 
         /// <summary>
@@ -58,14 +69,50 @@ namespace OnlineShop.Server.Controllers
         [Produces("application/json")]
         //С помощью PUT из Body по пришедшим со стороны пользователя credentials, система пытается
         // залогинить (найти сведения, тождественные credentials) и возвращает пользователю результат
-        public async Task<ActionResult<User>> Put([FromBody] UserCredentials credentials)
+        public async Task<ActionResult> Put([FromBody] UserCredentials credentials)
         {
             User user = await _userRepository.Login(credentials);
             if (user == null)
                 return Unauthorized();
 
-            HttpContext.Response.Cookies.Append("authID", $"{user.ID}");
+            var jwtToken = NewToken(user.ID, user.RoleID == 2);
+
+            HttpContext.Response.Headers.Append("WWW-Authenticate", "Bearer " + jwtToken);
+            HttpContext.Response.Cookies.Append("_token", jwtToken);
             return Ok(user);
+        }
+
+        [Authorize]
+        [HttpGet("[action]")]
+        public async Task<ActionResult<string>> GetUserInfo()
+        {
+            JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
+            var payload = jwtSecurityToken.GetPayload<JWTPayload>();
+            var username = await _userRepository.NicknameById(payload.UserId);
+
+            if (username != null)
+                return Ok(username);
+
+            return Unauthorized();
+        }
+
+        private string NewToken(int userId, bool isAdmin)
+        {
+            var signingCredentials = new SigningCredentials(_securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claimsdata = new[] {new Claim(ClaimTypes.Role, isAdmin ? "Admin" : "User")};
+
+            var securityToken = new JwtSecurityToken(
+                issuer: "blazor.app",
+                audience: "blazor.users",
+                signingCredentials: signingCredentials,
+                expires: DateTime.Now.AddHours(10),
+                claims: claimsdata
+            );
+            securityToken.SetPayload(new JWTPayload() {UserId = userId});
+
+            JwtSecurityTokenHandler tokenHandler = new();
+            return tokenHandler.WriteToken(securityToken);
         }
     }
 }

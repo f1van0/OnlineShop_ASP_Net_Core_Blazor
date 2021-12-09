@@ -1,7 +1,11 @@
 ﻿@using OnlineShop.Shared
+@using System.Net
+@using System.Net.Http.Headers
+@using OnlineShop.Client.Services.State
 @inject HttpClient client
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
+@inject AppState _appState
 
 <MudDialog Options="dialogOptions">
     <TitleContent>
@@ -57,10 +61,12 @@
             userCredentials.Password = password;
 
             var response = await client.PutAsJsonAsync<UserCredentials>("api/Auth", userCredentials);
-            User user = await response.Content.ReadFromJsonAsync<User>();
 
-            if (user.UserName != null)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
+                _appState.UserState.UserName = username;
+                var token = response.Headers.WwwAuthenticate.FirstOrDefault();
+                client.DefaultRequestHeaders.Authorization = token;
                 MudDialog.Close(DialogResult.Ok(true));
                 Snackbar.Clear();
                 Snackbar.Add("Авторизация прошла успешно", Severity.Info);
@@ -90,10 +96,10 @@
             UserCredentials userCredentials = new UserCredentials();
             userCredentials.UserName = username;
             userCredentials.Password = password;
-            
+
             var response = await client.PostAsJsonAsync<UserCredentials>("api/Auth", userCredentials);
             User user = await response.Content.ReadFromJsonAsync<User>();
-                
+
             if (user.UserName != null)
             {
                 MudDialog.Close(DialogResult.Ok(true));
@@ -106,7 +112,8 @@
                 registerError = "Пользователь с таким именем пользователя уже существует";
             }
         }
-        
+
         registerResult = true;
     }
+
 }

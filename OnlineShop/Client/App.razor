@@ -1,3 +1,11 @@
+@using OnlineShop.Client.Services
+@using System.Net.Http.Headers
+@using System.Net
+@using OnlineShop.Client.Services.State
+@inject CookieStorage _cookieStorage
+@inject HttpClient _httpClient
+@inject AppState _appState
+
 <MudThemeProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
@@ -9,3 +17,23 @@
         <NotFoundPage></NotFoundPage>
     </NotFound>
 </Router>
+
+@code{
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = await _cookieStorage.GetCookie<string>("_token");
+        if (token != "")
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var responseMessage = await _httpClient.GetAsync("api/Auth/GetUserInfo");
+
+            if (responseMessage.StatusCode == HttpStatusCode.OK)
+            {
+                var username = await responseMessage.Content.ReadAsStringAsync();
+                _appState.UserState.UserName = username;
+            }
+        }
+    }
+
+}

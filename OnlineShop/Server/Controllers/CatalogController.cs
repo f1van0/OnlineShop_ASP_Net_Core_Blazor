@@ -1,10 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using OnlineShop.Shared;
 using OnlineShop.Server.DB;
+using OnlineShop.Server.Services;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 
 namespace OnlineShop.Server.Controllers
@@ -30,31 +34,30 @@ namespace OnlineShop.Server.Controllers
             return _catalogDb.GetGoods().Result.ToArray();
         }
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
         //С помощью POST из Body по пришедшим со стороны пользователя ID товара и ID пользователя, система пытается
         //добавить товар в список покупок
-        public ActionResult<ResponseStatus> Post([FromBody]int goodsID)
+        public ActionResult<ResponseStatus> Post([FromBody] int goodsID)
         {
             _logger.LogInformation("test");
-            if (HttpContext.Request.Cookies.ContainsKey("authID"))
+            JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
+            var payload = jwtSecurityToken.GetPayload<JWTPayload>();
+            if (payload.UserId != -1)
             {
-                int userID = Convert.ToInt32(HttpContext.Request.Cookies["authID"]);
-                if (userID != -1)
+                if (_catalogDb.BuyGoods(payload.UserId, goodsID).IsCompleted)
                 {
-                    if (_catalogDb.BuyGoods(userID, goodsID).IsCompleted)
-                    {
-                        return Ok(ResponseStatus.Completed);
-                    }
-                    else
-                    {
-                        return BadRequest(ResponseStatus.Failed);
-                    }
+                    return Ok(ResponseStatus.Completed);
                 }
-                
+                else
+                {
+                    return BadRequest(ResponseStatus.Failed);
+                }
             }
+
             return Ok(ResponseStatus.NotAuthorized);
         }
     }
