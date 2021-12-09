@@ -1,0 +1,21 @@
+﻿@page "/profile"
+@layout MainLayout
+@using OnlineShop.Client.Services.State
+@inject AppState _appState
+
+<h3>Profile</h3>
+<MudText>User: @_appState.UserState.UserName</MudText>
+<MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true" ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
+    <MudTabPanel Text="Покупки" Icon="@Icons.Material.Filled.ShoppingCart">
+        <PurchaseView Purchases="Purchases"></PurchaseView>
+    </MudTabPanel>
+    <MudTabPanel Text="Сохраненные рисунки" Icon="@Icons.Material.Filled.Image">
+        <ImagesView Images="Images"></ImagesView>
+    </MudTabPanel>
+</MudTabs>
+
+@code {
+    public object[] Images = new[] {""};
+    public object[] Purchases = new[] {""};
+    
+}
