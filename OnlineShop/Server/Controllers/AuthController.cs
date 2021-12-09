@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using OnlineShop.Server.Services;
 using OnlineShop.Shared;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -93,7 +94,7 @@ namespace OnlineShop.Server.Controllers
                 expires: DateTime.Now.AddHours(10),
                 claims: claimsdata
             );
-            securityToken.Payload["userId"] = userId;
+            securityToken.SetPayload(new JWTPayload() {UserId = userId});
 
             JwtSecurityTokenHandler tokenHandler = new();
             return tokenHandler.WriteToken(securityToken);
