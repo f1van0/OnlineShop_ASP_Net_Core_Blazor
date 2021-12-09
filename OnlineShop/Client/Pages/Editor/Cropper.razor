@@ -1,11 +1,14 @@
 ﻿@using Blazor.Cropper
 @using System.Drawing;
 @using System.IO
+@using OnlineShop.Client.Services.State
+@using OnlineShop.Server.DB.Mappers
 @using SixLabors.ImageSharp
 @using SixLabors.ImageSharp.Formats
 @using SixLabors.ImageSharp.Formats.Bmp
 @using SixLabors.ImageSharp.PixelFormats
 @inject IJSRuntime js;
+@inject AppState _appState;
 
 <MudPaper Class="">
     <h3>Cropper</h3>
@@ -36,23 +39,31 @@
                     height: @height
                 </div>
                 <MudChipSet Filter="filter" SelectedChipChanged="SelectProportion" Mandatory="true">
-                    <MudChip Default="true" Text="32x32" Value="1"></MudChip>
-                    <MudChip Text="32x64" Value="2"></MudChip>
-                    <MudChip Text="32x48" Value="1.5"></MudChip>
+                    <MudChip Default="true" Text="32x32" Value="1f"></MudChip>
+                    <MudChip Text="32x64" Value="2f"></MudChip>
+                    <MudChip Text="32x48" Value="1.5f"></MudChip>
                 </MudChipSet>
                 <span>@proportion</span>
             }
-
+            <MudChipSet Filter="filter" SelectedChipChanged="SelectPalette" Mandatory="true">
+                @if (_colorPalettes != null)
+                {
+                    @for (int i = 0; i < _colorPalettes.Length; i++)
+                    {
+                        <MudChip Text="@_colorPalettes[i].Name" Value="@_colorPalettes[i]"></MudChip>
+                    }
+                }
+            </MudChipSet>
 
         </footer>
     }
-    
+
     <MudButton @onclick="DoneCrop">Save</MudButton>
     @if (!string.IsNullOrEmpty(imgUrl) && !parsing)
     {
         <img src="@imgUrl"/>
     }
-    
+
     @if (pixelizeHEXImage != null)
     {
         <Preview Pixels="pixelizeHEXImage"/>
@@ -76,6 +87,7 @@
     private string[]? selectedValues;
 
     private Rgba32[,] pixelizeImage;
+
     private Rgba32[] grayscalePalette = new Rgba32[7]
     {
         new Rgba32(0.1428f, 0.1428f, 0.1428f, 1),
@@ -85,10 +97,17 @@
         new Rgba32(0.714f, 0.714f, 0.714f, 1),
         new Rgba32(0.8568f, 0.8568f, 0.8568f, 1),
         new Rgba32(1, 1, 1, 1),
-        //new Rgba32(0.9996f, 0.9996f, 0.9996f, 1),
+    //new Rgba32(0.9996f, 0.9996f, 0.9996f, 1),
     };
+
     private string[,] pixelizeHEXImage;
-    private string[] hexPalette = new string[7] {"#1c1c1c", "#404040", "#616161", "#8a8a8a", "#b3b3b3", "#d9d9d9", "#f5f5f5"};
+    private ColorPalette hexPalette = new ColorPalette {Color1 = "#1c1c1c", Color2 = "#404040", Color3 = "#616161", Color4 = "#8a8a8a", Color5 = "#b3b3b3", Color6 = "#d9d9d9", Color7 = "#f5f5f5"};
+    ColorPalette[] _colorPalettes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _colorPalettes = await _appState.ColorPalettesRepository.GetPalettes();
+    }
 
     async Task OnInputFileChange(InputFileChangeEventArgs args)
     {
@@ -121,56 +140,36 @@
     private struct Sums
     {
         /// <summary>
-        /// Gets or sets the alpha component.
-        /// </summary>
-        public int A
-        {
-            get;
-            set;
-        }
+    /// Gets or sets the alpha component.
+    /// </summary>
+        public int A { get; set; }
 
         /// <summary>
-        /// Gets or sets the red component.
-        /// </summary>
-        public int R
-        {
-            get;
-            set;
-        }
+    /// Gets or sets the red component.
+    /// </summary>
+        public int R { get; set; }
 
         /// <summary>
-        /// Gets or sets the blue component.
-        /// </summary>
-        public int B
-        {
-            get;
-            set;
-        }
+    /// Gets or sets the blue component.
+    /// </summary>
+        public int B { get; set; }
 
         /// <summary>
-        /// Gets or sets the green component.
-        /// </summary>
-        public int G
-        {
-            get;
-            set;
-        }
+    /// Gets or sets the green component.
+    /// </summary>
+        public int G { get; set; }
 
         /// <summary>
-        /// Gets or sets the total count.
-        /// </summary>
-        public int T
-        {
-            get;
-            set;
-        }
+    /// Gets or sets the total count.
+    /// </summary>
+        public int T { get; set; }
     }
 
     public void Pixelize(Image<Rgba32> image)
     {
-        //50x50
-        int blockSizeX = (int)MathF.Truncate(image.Width / 32);
-        int blockSizeY = (int)MathF.Truncate(image.Height / 32);
+    //50x50
+        int blockSizeX = (int) MathF.Truncate(image.Width / 32);
+        int blockSizeY = (int) MathF.Truncate(image.Height / 32);
         pixelizeImage = new Rgba32[32, 32];
         pixelizeHEXImage = new string[32, 32];
         float minGrayscaled = 1.1f;
@@ -179,7 +178,7 @@
     //                  image.Width += blockSizeX
         for (int x = 0; x < 32; x++)
         {
-            //                  image.Height += blockSizeY
+    //                  image.Height += blockSizeY
             for (int y = 0; y < 32; y++)
             {
                 var sums = new Sums();
@@ -202,21 +201,21 @@
                     }
                 }
 
-                //Контрасность, суть алгоритма
-                //Найти диапазон цветов, использующихся в пикселизованной картинке с argb glayscale цветами
-                //От каждого цвета матрицы пикс. изображения отнять минимальное значение цвета
-                //разделить получившейся цвет на определенную константу, которая распределяет цвета по палитрам
+    //Контрасность, суть алгоритма
+    //Найти диапазон цветов, использующихся в пикселизованной картинке с argb glayscale цветами
+    //От каждого цвета матрицы пикс. изображения отнять минимальное значение цвета
+    //разделить получившейся цвет на определенную константу, которая распределяет цвета по палитрам
 
-                //Rgba32 average = new Rgba32((float)sums.R / sums.T / 255, (float)sums.G / sums.T / 255, (float)sums.B / sums.T / 255, 1);
+    //Rgba32 average = new Rgba32((float)sums.R / sums.T / 255, (float)sums.G / sums.T / 255, (float)sums.B / sums.T / 255, 1);
                 float averageGrayscaled = (sums.R * 0.2126f + sums.G * 0.7152f + sums.B * 0.0722f) / sums.T / 255;
 
-                /*
+    /*
                 //нормальное распределение цветов
                 int paletteColorIndex = (int)(grayscaled / 0.16669);
                 pixelizeImage[x, y] = grayscalePalette[paletteColorIndex];
                 */
 
-                /*
+    /*
                 //повышенная контранстность
                  */
                 if (averageGrayscaled > maxGrayscaled)
@@ -235,12 +234,35 @@
         {
             for (int y = 0; y < pixelizeImage.GetLength(1); y++)
             {
-                float t = (float)pixelizeImage[x, y].R / 255;
-                colorIndex = (int)((t - minGrayscaled) / divider);
-                //if (colorIndex > 6) colorIndex = 6;
-                //else if (colorIndex < 0) colorIndex = 0;
+                float t = (float) pixelizeImage[x, y].R / 255;
+                colorIndex = (int) ((t - minGrayscaled) / divider);
+    //if (colorIndex > 6) colorIndex = 6;
+    //else if (colorIndex < 0) colorIndex = 0;
                 pixelizeImage[x, y] = grayscalePalette[colorIndex];
-                pixelizeHEXImage[x, y] = hexPalette[colorIndex];
+                switch (colorIndex)
+                {
+                    case 0:
+                        pixelizeHEXImage[x, y] = hexPalette.Color1;
+                        break;
+                    case 1:
+                        pixelizeHEXImage[x, y] = hexPalette.Color2;
+                        break;
+                    case 2:
+                        pixelizeHEXImage[x, y] = hexPalette.Color3;
+                        break;
+                    case 3:
+                        pixelizeHEXImage[x, y] = hexPalette.Color4;
+                        break;
+                    case 4:
+                        pixelizeHEXImage[x, y] = hexPalette.Color5;
+                        break;
+                    case 5:
+                        pixelizeHEXImage[x, y] = hexPalette.Color6;
+                        break;
+                    default:
+                        pixelizeHEXImage[x, y] = hexPalette.Color7;
+                        break;
+                }
             }
         }
     }
@@ -255,7 +277,14 @@
     {
         selected = chip;
         if (selected != null)
-            proportion = 1 / (float)selected.Value;
+            proportion = 1 / (float) selected.Value;
+    }
+
+    private void SelectPalette(MudChip chip)
+    {
+        selected = chip;
+        if (selected != null)
+            hexPalette = (ColorPalette) selected.Value;
     }
 
 }
