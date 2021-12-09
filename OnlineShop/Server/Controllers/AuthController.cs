@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -79,6 +80,20 @@ namespace OnlineShop.Server.Controllers
             HttpContext.Response.Headers.Append("WWW-Authenticate", "Bearer " + jwtToken);
             HttpContext.Response.Cookies.Append("_token", jwtToken);
             return Ok(user);
+        }
+
+        [Authorize]
+        [HttpGet("[action]")]
+        public async Task<ActionResult<string>> GetUserInfo()
+        {
+            JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
+            var payload = jwtSecurityToken.GetPayload<JWTPayload>();
+            var username = await _userRepository.NicknameById(payload.UserId);
+
+            if (username != null)
+                return Ok(username);
+
+            return Unauthorized();
         }
 
         private string NewToken(int userId, bool isAdmin)

@@ -25,22 +25,33 @@ namespace OnlineShop.Server.DB
         public async Task<User> Register(UserCredentials credentials)
         {
             string sql = "START TRANSACTION;" +
-                "INSERT INTO online_shop.users(Username, Password) Values(@Username, @Password);"+
-                "SELECT * FROM online_shop.users WHERE ID = LAST_INSERT_ID();"+
-                "COMMIT;";
-            var users = await _db.Select<User, UserCredentials>(sql,  credentials);
+                         "INSERT INTO online_shop.users(Username, Password) Values(@Username, @Password);" +
+                         "SELECT * FROM online_shop.users WHERE ID = LAST_INSERT_ID();" +
+                         "COMMIT;";
+            var users = await _db.Select<User, UserCredentials>(sql, credentials);
             return users.FirstOrDefault();
         }
 
         public async Task<bool> UserExist(string username)
         {
             string sql = "SELECT * FROM online_shop.users WHERE UserName = @Username;";
-            var users = await _db.Select<User, dynamic>(sql, new { Username = username });
-            
+            var users = await _db.Select<User, dynamic>(sql, new {Username = username});
+
             if (users.FirstOrDefault() != null)
                 return true;
             else
                 return false;
+        }
+
+        public async Task<string?> NicknameById(int id)
+        {
+            string sql = "SELECT * FROM online_shop.users WHERE ID=@ID;";
+            var users = await _db.Select<User, dynamic>(sql, new {ID = id});
+            var user = users.FirstOrDefault();
+            if (user != null)
+                return user.UserName;
+
+            return null;
         }
     }
 }
