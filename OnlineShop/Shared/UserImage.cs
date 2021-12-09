@@ -1,18 +1,25 @@
 ﻿using OnlineShop.Server.DB.Mappers;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineShop.Shared
 {
     [Table(("images"))]
-    public record UserMosaic
+    public record UserImage
     {
+        [Key]
+        [Required]
         public int ID { get; set; }
+        [Required]
         public int OwnerID { get; set; }
-        public string Name { get; set; }
-        public Vector Size { get; set; }
+        [Required]
+        public int SizeID { get; set; }
+        [Required]
         public int[][] Image { get; set; }
-        public ColourPalette Palette { get; set; }
+        [Required]
+        public int PaletteID { get; set; }
+        [Required]
         public DateTime Date { get; set; }
     }
 }

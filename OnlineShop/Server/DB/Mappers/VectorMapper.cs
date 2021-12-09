@@ -7,14 +7,14 @@ using System.Text.RegularExpressions;
 
 namespace OnlineShop.Server.DB.Mappers
 {
-    public class VectorMapper : SqlMapper.TypeHandler<Vector>
+    public class VectorMapper : SqlMapper.TypeHandler<ImageSize>
     {
         private static Regex sizeRegex = new(@"(\d+)x(\d+)", RegexOptions.Compiled | RegexOptions.Singleline);
 
-        public override void SetValue(IDbDataParameter parameter, Vector value) =>
-            parameter.Value = $"{value.X}x{value.Y}";
+        public override void SetValue(IDbDataParameter parameter, ImageSize value) =>
+            parameter.Value = $"{value.SizeX}x{value.SizeY}";
 
-        public override Vector Parse(object value)
+        public override ImageSize Parse(object value)
         {
             string line = (string)value;
 
@@ -24,7 +24,7 @@ namespace OnlineShop.Server.DB.Mappers
 
             int x = int.Parse(groups[1].Value);
             int y = int.Parse(groups[2].Value);
-            return new Vector() {X = x, Y = y};
+            return new ImageSize() {SizeX = x, SizeY = y};
         }
     }
 }

@@ -17,7 +17,7 @@ namespace OnlineShop.Server.Tests
             // Arrange
             Mock<IDbDataParameter> parameter = new Mock<IDbDataParameter>()
                 .SetupProperty(x => x.Value);
-            Vector size = new() {X = 3, Y = 3};
+            ImageSize size = new() {SizeX = 3, SizeY = 3};
 
             // Act
             VectorMapper mapper = new();
@@ -32,11 +32,11 @@ namespace OnlineShop.Server.Tests
         public void VectorMapper_Deserialize()
         {
             // Arrange
-            Vector expected = new Vector() {X = 32, Y = 102};
+            ImageSize expected = new ImageSize() {SizeX = 32, SizeY = 102};
 
             // Act
             VectorMapper mapper = new();
-            Vector size = mapper.Parse("32x102");
+            ImageSize size = mapper.Parse("32x102");
 
             // Assert
             size.Should().Be(expected);
