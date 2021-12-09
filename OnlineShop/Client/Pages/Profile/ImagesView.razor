@@ -1,0 +1,15 @@
+﻿@foreach (var image in Images)
+{
+    <MudCard Class="my-2 pa-4">
+        <MudPaper Elevation="1" Height="100px" Width="100px"></MudPaper>
+        <MudText>Color</MudText>
+        @* <MudText Class="justify-end">@DateTime.Now</MudText> *@
+    </MudCard>
+}
+
+@code {
+
+    [Parameter]
+    public object[] Images { get; set; }
+
+}

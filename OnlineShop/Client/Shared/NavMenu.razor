@@ -2,23 +2,28 @@
 
     <MudDrawerHeader Style="height: calc(var(--mud-appbar-height) - var(--mud-appbar-height)/4);">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="onClicked"/>
-        <MudLink Href="/" Underline="Underline.None" Color="Color.Default" Typo="Typo.h5" Class="ml-3 my-auto">
+        <MudLink Href="/main" Underline="Underline.None" Color="Color.Default" Typo="Typo.h5" Class="ml-3 my-auto">
             OnlineShop
         </MudLink>
     </MudDrawerHeader>
 
     <MudDrawerContainer>
         <MudNavMenu>
-            <MudNavLink Href="">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+            <MudNavLink Href="/main" Icon="@Icons.Filled.Home">
+                Home
             </MudNavLink>
-            <MudNavLink Href="/counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+            <MudNavLink Href="/counter" Icon="@Icons.Filled.AddCircleOutline">
+                Counter
             </MudNavLink>
-            <MudNavLink Href="/fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            <MudNavLink Href="/fetchdata" Icon="@Icons.Filled.ViewList">
+                Fetch data
             </MudNavLink>
-            <MudNavLink Href="/editor">Editor</MudNavLink>
+            <MudNavLink Href="/editor" Icon="@Icons.Filled.Architecture">
+                Editor
+            </MudNavLink>
+            <MudNavLink Href="/profile" Icon="@Icons.Filled.Person">
+                Profile
+            </MudNavLink>
         </MudNavMenu>
     </MudDrawerContainer>
 </MudDrawer>

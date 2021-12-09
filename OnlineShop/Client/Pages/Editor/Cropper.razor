@@ -253,10 +253,9 @@
 
     private void SelectProportion(MudChip chip)
     {
-        Console.WriteLine("123");
         selected = chip;
-        if (selectedValues != null)
-            proportion = double.Parse(selectedValues[0]);
+        if (selected != null)
+            proportion = 1 / (float)selected.Value;
     }
 
 }

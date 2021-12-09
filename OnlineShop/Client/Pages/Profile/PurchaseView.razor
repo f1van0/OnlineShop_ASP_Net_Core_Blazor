@@ -1,0 +1,14 @@
+﻿@foreach (var constructor in Purchases)
+{
+    <MudCard Class="my-2 pa-4 flex-column">
+        <MudText>Constructor</MudText>
+        <MudText Class="justify-end">@DateTime.Now</MudText>
+    </MudCard>
+}
+
+@code {
+
+    [Parameter]
+    public object[] Purchases { get; set; }
+
+}

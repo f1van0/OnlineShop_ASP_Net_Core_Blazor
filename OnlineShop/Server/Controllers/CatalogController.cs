@@ -7,6 +7,8 @@ using OnlineShop.Server.DB;
 using OnlineShop.Server.Services;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OnlineShop.Server.Controllers
 {
@@ -26,9 +28,9 @@ namespace OnlineShop.Server.Controllers
 
         [HttpGet]
         //С помощью GET пользователю возвращается список товаров
-        public IEnumerable<GoodsStats> Get()
+        public async Task<IEnumerable<GoodsStats>> Get()
         {
-            return _catalogDb.GetGoods().Result.ToArray();
+            return await _catalogDb.GetGoods();
         }
 
         [Authorize]
