@@ -35,10 +35,10 @@
                     width: @width |
                     height: @height
                 </div>
-                <MudChipSet Filter="filter" SelectedChipChanged="SelectProportion">
-                    <MudChip Text="32x32" Value="1"></MudChip>
-                    <MudChip Text="32x64" Value="2"></MudChip>
-                    <MudChip Text="32x48" Value="1.5"></MudChip>
+                <MudChipSet Filter="filter" SelectedChipChanged="SelectProportion" Mandatory="true">
+                    <MudChip Text="32x32" Value="1f" Default="true"></MudChip>
+                    <MudChip Text="32x64" Value="2f"></MudChip>
+                    <MudChip Text="32x48" Value="1.5f"></MudChip>
                 </MudChipSet>
                 <span>@proportion</span>
             }
@@ -250,10 +250,9 @@
 
     private void SelectProportion(MudChip chip)
     {
-        Console.WriteLine("123");
         selected = chip;
-        if (selectedValues != null)
-            proportion = double.Parse(selectedValues[0]);
+        if (selected != null)
+            proportion = 1 / (float)selected.Value;
     }
 
 }
