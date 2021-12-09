@@ -1,3 +1,8 @@
+@using OnlineShop.Client.Services
+@using System.Net.Http.Headers
+@inject CookieStorage _cookieStorage
+@inject HttpClient _httpClient
+
 <MudThemeProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
@@ -9,3 +14,16 @@
         <NotFoundPage></NotFoundPage>
     </NotFound>
 </Router>
+
+@code{
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = await _cookieStorage.GetCookie<string>("_token");
+        if (token != "")
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+    }
+
+}
