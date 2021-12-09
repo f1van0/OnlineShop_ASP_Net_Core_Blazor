@@ -23,6 +23,7 @@ namespace OnlineShop.Server
             services.AddSingleton<IUserRepository, UserDB>();
             services.AddTransient<CatalogDB>();
             services.AddTransient<ImagesDB>();
+            services.AddTransient<ParamsDB>();
         }
 
         public static void AddDapperMappers(this IServiceCollection services)
@@ -31,7 +32,6 @@ namespace OnlineShop.Server
             SqlMapper.AddTypeHandler(new ArrayMapper<int>());
             SqlMapper.AddTypeHandler(new ArrayMapper<int[]>());
             SqlMapper.AddTypeHandler(new StringsMapper());
-            SqlMapper.AddTypeHandler(new VectorMapper());
         }
     }
 
