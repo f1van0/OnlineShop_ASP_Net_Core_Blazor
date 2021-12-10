@@ -3,12 +3,14 @@
 @using System.IO
 @using OnlineShop.Client.Services.State
 @using OnlineShop.Server.DB.Mappers
+@using OnlineShop.Shared
 @using SixLabors.ImageSharp
 @using SixLabors.ImageSharp.Formats
 @using SixLabors.ImageSharp.Formats.Bmp
 @using SixLabors.ImageSharp.PixelFormats
 @inject IJSRuntime js;
 @inject AppState _appState;
+@inject HttpClient client
 
 <MudPaper Class="">
     <h3>Cropper</h3>
@@ -20,7 +22,7 @@
             MaxCropedHeight="500"
             MaxCropedWidth="500"
             CropperHeight="600"
-            AspectRatio="proportion == 0 ? 1 : proportion"
+            AspectRatio="imageSize == null ? 1 : imageSize.Proportion"
             @ref="cropper"
             RequireAspectRatio="true"
             InputId="input1"
@@ -39,26 +41,38 @@
                     height: @height
                 </div>
                 <MudChipSet Filter="filter" SelectedChipChanged="SelectProportion" Mandatory="true">
-                    <MudChip Default="true" Text="32x32" Value="1f"></MudChip>
-                    <MudChip Text="32x64" Value="2f"></MudChip>
-                    <MudChip Text="32x48" Value="1.5f"></MudChip>
-                </MudChipSet>
-                <span>@proportion</span>
-            }
-            <MudChipSet Filter="filter" SelectedChipChanged="SelectPalette" Mandatory="true">
-                @if (_colorPalettes != null)
-                {
-                    @for (int i = 0; i < _colorPalettes.Length; i++)
+                    @if (_imageSizes != null)
                     {
-                        <MudChip Text="@_colorPalettes[i].Name" Value="@_colorPalettes[i]"></MudChip>
+                        @for (int i = 0; i < _imageSizes.Length; i++)
+                        {
+                            <MudChip Text="@_imageSizes[i].Name" Value="@_imageSizes[i]"></MudChip>
+                        }
                     }
-                }
-            </MudChipSet>
+                </MudChipSet>
+            }
 
         </footer>
     }
+    <MudChipSet Filter="filter" SelectedChipChanged="SelectPalette" Mandatory="true">
+                    @if (_colorPalettes != null)
+                    {
+                        @for (int i = 0; i < _colorPalettes.Length; i++)
+                        {
+                            <MudChip Text="@_colorPalettes[i].Name" Value="@_colorPalettes[i]"></MudChip>
+                        }
+                    }
+                </MudChipSet>
 
-    <MudButton @onclick="DoneCrop">Save</MudButton>
+    @if (pixelizeHEXImage == null)
+    {
+        <MudButton @onclick="DoneCrop">Save</MudButton>
+        @isPaletteChanged=false;
+    }
+    else if (pixelizeHEXImage != null && isPaletteChanged)
+    {
+        <MudButton @onclick="SetPalette">Set</MudButton>
+    }
+    
     @if (!string.IsNullOrEmpty(imgUrl) && !parsing)
     {
         <img src="@imgUrl"/>
@@ -79,15 +93,17 @@
     double height;
     string imgUrl = "";
     bool parsing = false;
-    double proportion = 1d;
     double ratio = 1;
 
     bool filter = true;
-    MudChip selected;
     private string[]? selectedValues;
+    MudChip selectedSize;
+    MudChip selectedPalette;
+    private bool isPaletteChanged = false;
 
-    private Rgba32[,] pixelizeImage;
-
+    private Rgba32[,] averageGrayscaledImage;
+ 
+/*
     private Rgba32[] grayscalePalette = new Rgba32[7]
     {
         new Rgba32(0.1428f, 0.1428f, 0.1428f, 1),
@@ -99,13 +115,17 @@
         new Rgba32(1, 1, 1, 1),
     //new Rgba32(0.9996f, 0.9996f, 0.9996f, 1),
     };
+ */
 
     private string[,] pixelizeHEXImage;
     private ColorPalette hexPalette = new ColorPalette {Color1 = "#1c1c1c", Color2 = "#404040", Color3 = "#616161", Color4 = "#8a8a8a", Color5 = "#b3b3b3", Color6 = "#d9d9d9", Color7 = "#f5f5f5"};
     ColorPalette[] _colorPalettes;
+    private ImageSize imageSize;
+    ImageSize[] _imageSizes;
 
     protected override async Task OnInitializedAsync()
     {
+        _imageSizes = await _appState.ImageSizesRepository.GetImageSizes();
         _colorPalettes = await _appState.ColorPalettesRepository.GetPalettes();
     }
 
@@ -168,18 +188,18 @@
     public void Pixelize(Image<Rgba32> image)
     {
     //50x50
-        int blockSizeX = (int) MathF.Truncate(image.Width / 32);
-        int blockSizeY = (int) MathF.Truncate(image.Height / 32);
-        pixelizeImage = new Rgba32[32, 32];
-        pixelizeHEXImage = new string[32, 32];
+        int blockSizeX = (int) MathF.Truncate(image.Width / imageSize.SizeX);
+        int blockSizeY = (int) MathF.Truncate(image.Height / imageSize.SizeY);
+        averageGrayscaledImage = new Rgba32[imageSize.SizeX, imageSize.SizeY];
+        pixelizeHEXImage = new string[imageSize.SizeX, imageSize.SizeY];
         float minGrayscaled = 1.1f;
         float maxGrayscaled = -0.1f;
 
     //                  image.Width += blockSizeX
-        for (int x = 0; x < 32; x++)
+        for (int x = 0; x < imageSize.SizeX; x++)
         {
     //                  image.Height += blockSizeY
-            for (int y = 0; y < 32; y++)
+            for (int y = 0; y < imageSize.SizeY; y++)
             {
                 var sums = new Sums();
 
@@ -223,22 +243,21 @@
                 else if (averageGrayscaled < minGrayscaled)
                     minGrayscaled = averageGrayscaled;
 
-                pixelizeImage[x, y] = new Rgba32(averageGrayscaled, averageGrayscaled, averageGrayscaled, 1);
+                averageGrayscaledImage[x, y] = new Rgba32(averageGrayscaled, averageGrayscaled, averageGrayscaled, 1);
             }
         }
 
         float grayscaledRange = maxGrayscaled - minGrayscaled;
         float divider = grayscaledRange / 6;
         int colorIndex;
-        for (int x = 0; x < pixelizeImage.GetLength(0); x++)
+        for (int x = 0; x < pixelizeHEXImage.GetLength(0); x++)
         {
-            for (int y = 0; y < pixelizeImage.GetLength(1); y++)
+            for (int y = 0; y < pixelizeHEXImage.GetLength(1); y++)
             {
-                float t = (float) pixelizeImage[x, y].R / 255;
+                float t = (float) averageGrayscaledImage[x, y].R / 255;
                 colorIndex = (int) ((t - minGrayscaled) / divider);
     //if (colorIndex > 6) colorIndex = 6;
     //else if (colorIndex < 0) colorIndex = 0;
-                pixelizeImage[x, y] = grayscalePalette[colorIndex];
                 switch (colorIndex)
                 {
                     case 0:
@@ -267,6 +286,32 @@
         }
     }
 
+    /*
+     
+    async void SetPalette()
+    {
+        var response = await client.PostAsJsonAsync<int>("api/Images", goodsID);
+    // ResponseStatus result = await response.Content.ReadFromJsonAsync<ResponseStatus>();
+
+        switch (response.StatusCode)
+        {
+            case HttpStatusCode.OK:
+                Snackbar.Clear();
+                Snackbar.Add("Успешно куплено", Severity.Success);
+                break;
+            case HttpStatusCode.BadRequest:
+                Snackbar.Clear();
+                Snackbar.Add("Произошла ошибка при покупке", Severity.Error);
+                break;
+            case HttpStatusCode.Unauthorized:
+                await OpenLoginDialog();
+                break;
+            default:
+                break;
+        }
+    }
+    */
+    
     async void GetCropResult()
     {
         var re = await cropper.GetCropedResult();
@@ -275,16 +320,16 @@
 
     private void SelectProportion(MudChip chip)
     {
-        selected = chip;
-        if (selected != null)
-            proportion = 1 / (float) selected.Value;
+        selectedSize = chip;
+        if (selectedSize != null)
+            imageSize = (ImageSize) selectedSize.Value;
     }
 
     private void SelectPalette(MudChip chip)
     {
-        selected = chip;
-        if (selected != null)
-            hexPalette = (ColorPalette) selected.Value;
+        selectedPalette = chip;
+        if (selectedPalette != null)
+            hexPalette = (ColorPalette) selectedPalette.Value;
     }
 
 }

@@ -15,7 +15,7 @@ namespace OnlineShop.Client.Services.State
             _client = client;
         }
 
-        public async Task<ImageSize[]> GetPalettes()
+        public async Task<ImageSize[]> GetImageSizes()
         {
             _imageSizes ??= await FetchImageSizes();
             return _imageSizes;

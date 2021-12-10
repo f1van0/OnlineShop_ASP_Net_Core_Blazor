@@ -14,5 +14,8 @@ namespace OnlineShop.Shared
         
         [Required]
        public int SizeY { get; set; }
+
+       public string Name => SizeX + "x" + SizeY;
+       public float Proportion => (float)SizeY / SizeX;
     }
 }
