@@ -79,7 +79,7 @@ namespace OnlineShop.Server.Controllers
 
             HttpContext.Response.Headers.Append("WWW-Authenticate", "Bearer " + jwtToken);
             HttpContext.Response.Cookies.Append("_token", jwtToken);
-            return Ok(user);
+            return Ok();
         }
 
         [Authorize]

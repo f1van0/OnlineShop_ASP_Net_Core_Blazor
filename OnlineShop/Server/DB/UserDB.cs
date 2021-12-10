@@ -25,10 +25,15 @@ namespace OnlineShop.Server.DB
         public async Task<User> Register(UserCredentials credentials)
         {
             string sql = "START TRANSACTION;" +
-                         "INSERT INTO online_shop.users(Username, Password) Values(@Username, @Password);" +
+                         "INSERT INTO online_shop.users(Username, Password, RoleId) Values(@Username, @Password, @RoleId);" +
                          "SELECT * FROM online_shop.users WHERE ID = LAST_INSERT_ID();" +
                          "COMMIT;";
-            var users = await _db.Select<User, UserCredentials>(sql, credentials);
+            var users = await _db.Select<User, dynamic>(sql, 
+                new { 
+                    Username=credentials.UserName,
+                    Password = credentials.Password,
+                    RoleId=1
+                });
             return users.FirstOrDefault();
         }
 
