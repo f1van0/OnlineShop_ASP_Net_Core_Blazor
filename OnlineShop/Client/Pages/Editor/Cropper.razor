@@ -22,7 +22,7 @@
             MaxCropedHeight="500"
             MaxCropedWidth="500"
             CropperHeight="600"
-            AspectRatio="imageSize == null ? 1 : imageSize.Proportion"
+            AspectRatio="_selectedImageSize == null ? 1 : _selectedImageSize.Proportion"
             @ref="cropper"
             RequireAspectRatio="true"
             InputId="input1"
@@ -63,15 +63,7 @@
                     }
                 </MudChipSet>
 
-    @if (pixelizeHEXImage == null)
-    {
-        <MudButton @onclick="DoneCrop">Save</MudButton>
-        @isPaletteChanged=false;
-    }
-    else if (pixelizeHEXImage != null && isPaletteChanged)
-    {
-        <MudButton @onclick="SetPalette">Set</MudButton>
-    }
+    <MudButton @onclick="DoneCrop">Save</MudButton>
     
     @if (!string.IsNullOrEmpty(imgUrl) && !parsing)
     {
@@ -101,9 +93,7 @@
     MudChip selectedPalette;
     private bool isPaletteChanged = false;
 
-    private Rgba32[,] averageGrayscaledImage;
- 
-/*
+    /*
     private Rgba32[] grayscalePalette = new Rgba32[7]
     {
         new Rgba32(0.1428f, 0.1428f, 0.1428f, 1),
@@ -118,15 +108,18 @@
  */
 
     private string[,] pixelizeHEXImage;
-    private ColorPalette hexPalette = new ColorPalette {Color1 = "#1c1c1c", Color2 = "#404040", Color3 = "#616161", Color4 = "#8a8a8a", Color5 = "#b3b3b3", Color6 = "#d9d9d9", Color7 = "#f5f5f5"};
+    private int[][] pixelizeImage;
+    private ColorPalette _selectedColorPalette = new ColorPalette {Color1 = "#1c1c1c", Color2 = "#404040", Color3 = "#616161", Color4 = "#8a8a8a", Color5 = "#b3b3b3", Color6 = "#d9d9d9", Color7 = "#f5f5f5"};
     ColorPalette[] _colorPalettes;
-    private ImageSize imageSize;
+    private ImageSize _selectedImageSize;
     ImageSize[] _imageSizes;
 
     protected override async Task OnInitializedAsync()
     {
         _imageSizes = await _appState.ImageSizesRepository.GetImageSizes();
+        _selectedImageSize = _imageSizes[0];
         _colorPalettes = await _appState.ColorPalettesRepository.GetPalettes();
+        _selectedColorPalette = _colorPalettes[0];
     }
 
     async Task OnInputFileChange(InputFileChangeEventArgs args)
@@ -155,6 +148,7 @@
 
         Pixelize(image);
         parsing = false;
+        isPaletteChanged=false;
     }
 
     private struct Sums
@@ -188,18 +182,23 @@
     public void Pixelize(Image<Rgba32> image)
     {
     //50x50
-        int blockSizeX = (int) MathF.Truncate(image.Width / imageSize.SizeX);
-        int blockSizeY = (int) MathF.Truncate(image.Height / imageSize.SizeY);
-        averageGrayscaledImage = new Rgba32[imageSize.SizeX, imageSize.SizeY];
-        pixelizeHEXImage = new string[imageSize.SizeX, imageSize.SizeY];
+        int blockSizeX = (int) MathF.Truncate(image.Width / _selectedImageSize.SizeX);
+        int blockSizeY = (int) MathF.Truncate(image.Height / _selectedImageSize.SizeY);
+        Rgba32[,] averageGrayscaledImage = new Rgba32[_selectedImageSize.SizeX, _selectedImageSize.SizeY];
+        pixelizeHEXImage = new string[_selectedImageSize.SizeX, _selectedImageSize.SizeY];
+        pixelizeImage = new int[_selectedImageSize.SizeX][];
+        for (int i = 0; i < pixelizeImage.Length; i++)
+        {
+            pixelizeImage[i] = new int[_selectedImageSize.SizeY];
+        }
         float minGrayscaled = 1.1f;
         float maxGrayscaled = -0.1f;
 
     //                  image.Width += blockSizeX
-        for (int x = 0; x < imageSize.SizeX; x++)
+        for (int x = 0; x < _selectedImageSize.SizeX; x++)
         {
     //                  image.Height += blockSizeY
-            for (int y = 0; y < imageSize.SizeY; y++)
+            for (int y = 0; y < _selectedImageSize.SizeY; y++)
             {
                 var sums = new Sums();
 
@@ -256,30 +255,43 @@
             {
                 float t = (float) averageGrayscaledImage[x, y].R / 255;
                 colorIndex = (int) ((t - minGrayscaled) / divider);
+                pixelizeImage[x][y] = colorIndex;
     //if (colorIndex > 6) colorIndex = 6;
     //else if (colorIndex < 0) colorIndex = 0;
-                switch (colorIndex)
+            }
+        }
+
+        Redraw();
+    }
+    
+    public void Redraw()
+    {
+        for (int x = 0; x < pixelizeHEXImage.GetLength(0); x++)
+        {
+            for (int y = 0; y < pixelizeHEXImage.GetLength(1); y++)
+            {
+                switch (pixelizeImage[x][y])
                 {
                     case 0:
-                        pixelizeHEXImage[x, y] = hexPalette.Color1;
+                        pixelizeHEXImage[x, y] = _selectedColorPalette.Color1;
                         break;
                     case 1:
-                        pixelizeHEXImage[x, y] = hexPalette.Color2;
+                        pixelizeHEXImage[x, y] = _selectedColorPalette.Color2;
                         break;
                     case 2:
-                        pixelizeHEXImage[x, y] = hexPalette.Color3;
+                        pixelizeHEXImage[x, y] = _selectedColorPalette.Color3;
                         break;
                     case 3:
-                        pixelizeHEXImage[x, y] = hexPalette.Color4;
+                        pixelizeHEXImage[x, y] = _selectedColorPalette.Color4;
                         break;
                     case 4:
-                        pixelizeHEXImage[x, y] = hexPalette.Color5;
+                        pixelizeHEXImage[x, y] = _selectedColorPalette.Color5;
                         break;
                     case 5:
-                        pixelizeHEXImage[x, y] = hexPalette.Color6;
+                        pixelizeHEXImage[x, y] = _selectedColorPalette.Color6;
                         break;
                     default:
-                        pixelizeHEXImage[x, y] = hexPalette.Color7;
+                        pixelizeHEXImage[x, y] = _selectedColorPalette.Color7;
                         break;
                 }
             }
@@ -322,14 +334,14 @@
     {
         selectedSize = chip;
         if (selectedSize != null)
-            imageSize = (ImageSize) selectedSize.Value;
+            _selectedImageSize = (ImageSize) selectedSize.Value;
     }
 
     private void SelectPalette(MudChip chip)
     {
         selectedPalette = chip;
         if (selectedPalette != null)
-            hexPalette = (ColorPalette) selectedPalette.Value;
+            _selectedColorPalette = (ColorPalette) selectedPalette.Value;
     }
 
 }
