@@ -4,6 +4,8 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace OnlineShop.Client.Services.State
@@ -26,7 +28,7 @@ namespace OnlineShop.Client.Services.State
 
             if (responseMessage.IsSuccessStatusCode)
             {
-                UserImage image = await responseMessage.Content.ReadFromJsonAsync<UserImage>();
+                var image =  await responseMessage.Content.ReadFromJsonAsync<UserImage>();
                 Images.Append(image);
                 return image;
             }

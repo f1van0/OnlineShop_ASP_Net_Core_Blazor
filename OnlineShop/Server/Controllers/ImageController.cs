@@ -60,7 +60,10 @@ namespace OnlineShop.Server.Controllers
             {
                 try
                 {
+                    _logger.LogInformation("[ImagesDB] Try to add new image {0}", image);
                     UserImage userImage = await _imagesDb.SaveUserImage(userId, image.Pixels, paletteId: image.Palette.ID, sizeId: image.Size.ID);
+                    _logger.LogInformation("[ImagesDB] Added new image {0}", userImage);
+                    
                     if (userImage != null)
                         return Ok(userImage);
                 }

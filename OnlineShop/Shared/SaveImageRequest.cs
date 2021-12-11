@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OnlineShop.Shared
 {
-    public class SaveImageRequest
+    public record SaveImageRequest
     {
         [Required] public int[][] Pixels { get; set; }
 
