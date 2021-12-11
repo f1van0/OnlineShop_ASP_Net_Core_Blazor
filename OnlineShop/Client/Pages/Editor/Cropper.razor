@@ -8,6 +8,7 @@
 @using SixLabors.ImageSharp.Formats
 @using SixLabors.ImageSharp.Formats.Bmp
 @using SixLabors.ImageSharp.PixelFormats
+@using Color = MudBlazor.Color
 @inject IJSRuntime js;
 @inject AppState _appState;
 @inject HttpClient client
@@ -27,7 +28,7 @@
             RequireAspectRatio="true"
             InputId="input1"
             ImageFile="file"
-            @bind-Ratio="ratio"
+            @bind-Ratio="_cropRatio"
             PureCSharpProcessing="false"
             OnSizeChanged="t =>{ width = t.Item1; height = t.Item2; }">
         </Blazor.Cropper.Cropper>
@@ -40,12 +41,12 @@
                     width: @width |
                     height: @height
                 </div>
-                <MudChipSet Filter="filter" SelectedChipChanged="SelectProportion" Mandatory="true">
+                <MudChipSet Filter="true" SelectedChipChanged="SelectProportion" Mandatory="true">
                     @if (_imageSizes != null)
                     {
                         @for (int i = 0; i < _imageSizes.Length; i++)
                         {
-                            <MudChip Text="@_imageSizes[i].Name" Value="@_imageSizes[i]"></MudChip>
+                            <MudChip Text="@_imageSizes[i].Name" Value="@_imageSizes[i]" Default="FirstDefault(i)"></MudChip>
                         }
                     }
                 </MudChipSet>
@@ -53,26 +54,39 @@
 
         </footer>
     }
-    <MudChipSet Filter="filter" SelectedChipChanged="SelectPalette" Mandatory="true">
-                    @if (_colorPalettes != null)
-                    {
-                        @for (int i = 0; i < _colorPalettes.Length; i++)
-                        {
-                            <MudChip Text="@_colorPalettes[i].Name" Value="@_colorPalettes[i]"></MudChip>
-                        }
-                    }
-                </MudChipSet>
-
-    <MudButton @onclick="DoneCrop">Save</MudButton>
-    
-    @if (!string.IsNullOrEmpty(imgUrl) && !parsing)
+    @if (file != null || pixelizeHEXImage != null)
     {
-        <img src="@imgUrl"/>
+        <MudChipSet Filter="true" SelectedChipChanged="SelectPalette" Mandatory="true">
+            @if (_colorPalettes != null)
+            {
+                @for (int i = 0; i < _colorPalettes.Length; i++)
+                {
+                    <MudChip Text="@_colorPalettes[i].Name" Value="@_colorPalettes[i]" Default="@FirstDefault(i)"></MudChip>
+                }
+            }
+        </MudChipSet>
+        <MudButton @onclick="DoneCrop" Color="Color.Secondary">Crop image</MudButton>
+    }
+
+
+    @if (!string.IsNullOrEmpty(imageDataUrl) && !parsing)
+    {
     }
 
     @if (pixelizeHEXImage != null)
     {
-        <Preview Pixels="pixelizeHEXImage"/>
+        <MudGrid>
+            <MudItem xs="6">
+                <MudText>Original</MudText>
+                <img src="@imageDataUrl" width="500" height="@FitImage()"/>
+            </MudItem>
+            <MudItem xs="6">
+                <MudText>Pixilated</MudText>
+                <Preview Pixels="pixelizeHEXImage" PixelSize="@CalcPixelSize()"/>
+            </MudItem>
+
+        </MudGrid>
+        <MudButton @onclick="SaveImage" Color="Color.Primary">Save</MudButton>
     }
 </MudPaper>
 
@@ -80,35 +94,22 @@
     Blazor.Cropper.Cropper cropper;
     private ElementReference _image;
     IBrowserFile file;
-    bool purecs = false;
     double width;
     double height;
-    string imgUrl = "";
     bool parsing = false;
-    double ratio = 1;
+    double _cropRatio = 1;
+    
 
-    bool filter = true;
-    private string[]? selectedValues;
     MudChip selectedSize;
     MudChip selectedPalette;
     private bool isPaletteChanged = false;
 
-    /*
-    private Rgba32[] grayscalePalette = new Rgba32[7]
-    {
-        new Rgba32(0.1428f, 0.1428f, 0.1428f, 1),
-        new Rgba32(0.2856f, 0.2856f, 0.2856f, 1),
-        new Rgba32(0.4284f, 0.4284f, 0.4284f, 1),
-        new Rgba32(0.5712f, 0.5712f, 0.5712f, 1),
-        new Rgba32(0.714f, 0.714f, 0.714f, 1),
-        new Rgba32(0.8568f, 0.8568f, 0.8568f, 1),
-        new Rgba32(1, 1, 1, 1),
-    //new Rgba32(0.9996f, 0.9996f, 0.9996f, 1),
-    };
- */
-
-    private string[,] pixelizeHEXImage;
+    // images
+    string imageDataUrl = "";
+    private Image<Rgba32> croppedImage;
     private int[][] pixelizeImage;
+    private string[,] pixelizeHEXImage;
+    
     private ColorPalette _selectedColorPalette = new ColorPalette {Color1 = "#1c1c1c", Color2 = "#404040", Color3 = "#616161", Color4 = "#8a8a8a", Color5 = "#b3b3b3", Color6 = "#d9d9d9", Color7 = "#f5f5f5"};
     ColorPalette[] _colorPalettes;
     private ImageSize _selectedImageSize;
@@ -122,6 +123,8 @@
         _selectedColorPalette = _colorPalettes[0];
     }
 
+    bool FirstDefault(int number) => number == 0;
+
     async Task OnInputFileChange(InputFileChangeEventArgs args)
     {
         await js.InvokeVoidAsync("console.log", DateTime.Now.ToString());
@@ -130,7 +133,7 @@
 
     void OnRatioChange(ChangeEventArgs args)
     {
-        ratio = int.Parse(args.Value.ToString()) / 100.0;
+        _cropRatio = int.Parse(args.Value.ToString()) / 100.0;
     }
 
     async Task DoneCrop()
@@ -143,12 +146,12 @@
         await js.InvokeVoidAsync("console.log", "converted!");
         var base64string = await args.GetBase64Async();
         byte[] bitmap = await new ImageCroppedResult(base64string).GetDataAsync();
-        Image<Rgba32> image = Image.Load(bitmap);
-        imgUrl = $"data:image/png;base64,{base64string}";
+        croppedImage = Image.Load(bitmap);
+        imageDataUrl = $"data:image/png;base64,{base64string}";
 
-        Pixelize(image);
+        Pixelize(croppedImage);
         parsing = false;
-        isPaletteChanged=false;
+        isPaletteChanged = false;
     }
 
     private struct Sums
@@ -263,7 +266,7 @@
 
         Redraw();
     }
-    
+
     public void Redraw()
     {
         for (int x = 0; x < pixelizeHEXImage.GetLength(0); x++)
@@ -323,7 +326,7 @@
         }
     }
     */
-    
+
     async void GetCropResult()
     {
         var re = await cropper.GetCropedResult();
@@ -342,6 +345,24 @@
         selectedPalette = chip;
         if (selectedPalette != null)
             _selectedColorPalette = (ColorPalette) selectedPalette.Value;
+    }
+
+    private void SaveImage()
+    {
+    // pixelizeImage
+    }
+
+    private string FitImage()
+    {
+        float aspect = _selectedImageSize.SizeX / (float) _selectedImageSize.SizeY;
+        return $"{500f / aspect}px";
+    }
+
+    private double CalcPixelSize()
+    {
+        const float baseSize = 16 * 32;
+
+        return Math.Round(baseSize / _selectedImageSize.SizeX, 3);
     }
 
 }
