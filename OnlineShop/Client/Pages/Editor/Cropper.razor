@@ -47,7 +47,13 @@
                     {
                         @for (int i = 0; i < _imageSizes.Length; i++)
                         {
-                            <MudChip Text="@_imageSizes[i].Name" Value="@_imageSizes[i]" Default="FirstDefault(i)"></MudChip>
+                            <MudChip
+                                Text="@_imageSizes[i].Name"
+                                Value="@_imageSizes[i]"
+                                Default="FirstDefault(i)"
+                                Variant="Variant.Outlined"
+                                Color="Color.Dark">
+                            </MudChip>
                         }
                     }
                 </MudChipSet>
@@ -62,10 +68,20 @@
             {
                 @for (int i = 0; i < _colorPalettes.Length; i++)
                 {
-                    <MudChip Text="@_colorPalettes[i].Name" Value="@_colorPalettes[i]" Default="@FirstDefault(i)"></MudChip>
+                    <MudChip
+                        Text="@_colorPalettes[i].Name"
+                        Value="@_colorPalettes[i]"
+                        Default="@FirstDefault(i)"
+                        Variant="Variant.Outlined"
+                        Color="Color.Info">
+                    </MudChip>
                 }
             }
         </MudChipSet>
+    }
+
+    @if (file != null)
+    {
         <MudButton @onclick="DoneCrop" Color="Color.Secondary">Crop image</MudButton>
     }
 
@@ -345,7 +361,11 @@
     {
         selectedPalette = chip;
         if (selectedPalette != null)
+        {
             _selectedColorPalette = (ColorPalette) selectedPalette.Value;
+            if (pixelizeImage != null)
+                Redraw();
+        }
     }
 
     private async void SaveImage()
