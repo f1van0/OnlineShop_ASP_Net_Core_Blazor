@@ -13,6 +13,7 @@ namespace OnlineShop.Shared
         Task<User> Login(UserCredentials credentials);
 
         Task<bool> UserExist(string username);
-        Task<string?> NicknameById(int id);
+        
+        Task<UserInfo> UserInfoById(int id);
     }
 }
