@@ -13,6 +13,8 @@
 @inject AppState _appState;
 @inject HttpClient client
 @inject ISnackbar _snackbar
+@inject NavigationManager _navigationManager
+
 
 <MudPaper Class="">
     <h3>Cropper</h3>
@@ -82,7 +84,7 @@
 
     @if (file != null)
     {
-        <MudButton @onclick="DoneCrop" Color="Color.Secondary">Crop image</MudButton>
+        <MudButton @onclick="DoneCrop" Color="Color.Secondary" Variant="Variant.Filled">Crop image</MudButton>
     }
 
 
@@ -103,7 +105,7 @@
             </MudItem>
 
         </MudGrid>
-        <MudButton @onclick="SaveImage" Color="Color.Primary">Save</MudButton>
+        <MudButton @onclick="SaveImage" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
     }
 </MudPaper>
 
@@ -374,7 +376,10 @@
         {
             UserImage image = await _appState.ImageRepository.UploadImage(pixelizeImage, _selectedImageSize, _selectedColorPalette);
             if (image != null)
+            {
                 _snackbar.Add("Saved successfully", Severity.Success);
+                _navigationManager.NavigateTo("/editor", true);
+            }
         }
         catch (Exception e)
         {
