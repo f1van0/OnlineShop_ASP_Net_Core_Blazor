@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using OnlineShop.Shared;
+using System.Net.Http;
 
 namespace OnlineShop.Client.Services.State
 {
@@ -14,7 +15,7 @@ namespace OnlineShop.Client.Services.State
             ImageRepository = new ImageRepository(_client);
         }
 
-        public UserState UserState { get; set; } = new UserState();
+        public UserInfo UserState { get; set; } = new UserInfo();
         public ColorPalettesRepository ColorPalettesRepository { get; set; }
         public ImageSizesRepository ImageSizesRepository { get; set; }
         public ImageRepository ImageRepository { get; set; }

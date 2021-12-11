@@ -1,8 +1,9 @@
-﻿namespace OnlineShop.Client.Services.State
+﻿namespace OnlineShop.Shared
 {
-    public record UserState
+    public record UserInfo
     {
         public string UserName { get; set; }
         public string Role { get; set; }
+        }
     }
 }
