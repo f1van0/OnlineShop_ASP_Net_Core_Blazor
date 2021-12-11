@@ -1,4 +1,9 @@
-﻿<MudDrawer @bind-Open="Open" Variant="@DrawerVariant.Responsive">
+﻿@using OnlineShop.Client.Services.State
+@using OnlineShop.Client.Pages.Auth
+@inject AppState _appState
+@inject IDialogService _dialog
+
+<MudDrawer @bind-Open="Open" Variant="@DrawerVariant.Responsive">
 
     <MudDrawerHeader Style="height: calc(var(--mud-appbar-height) - var(--mud-appbar-height)/4);">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="onClicked"/>
@@ -18,12 +23,25 @@
             <MudNavLink Href="/fetchdata" Icon="@Icons.Filled.ViewList">
                 Fetch data
             </MudNavLink>
-            <MudNavLink Href="/editor" Icon="@Icons.Filled.Architecture">
-                Editor
-            </MudNavLink>
-            <MudNavLink Href="/profile" Icon="@Icons.Filled.Person">
-                Profile
-            </MudNavLink>
+            @if (IsAuthorized())
+            {
+                <MudNavLink Href="/editor" Icon="@Icons.Filled.Architecture">
+                    Editor
+                </MudNavLink>
+                <MudNavLink Href="/profile" Icon="@Icons.Filled.Person">
+                    Profile
+                </MudNavLink>
+            }
+            else
+            {
+                <MudNavLink Icon="@Icons.Filled.Architecture" OnClick="DisplayLoginDialog">
+                    Editor
+                </MudNavLink>
+                <MudNavLink Icon="@Icons.Filled.Person" OnClick="DisplayLoginDialog">
+                    Profile
+                </MudNavLink>
+            }
+
         </MudNavMenu>
     </MudDrawerContainer>
 </MudDrawer>
@@ -39,6 +57,14 @@
     private void onClicked()
     {
         ClickedClose.InvokeAsync();
+    }
+
+    bool IsAuthorized() =>
+        !string.IsNullOrEmpty(_appState.UserState.UserName);
+
+    private void DisplayLoginDialog()
+    {
+        _dialog.Show<AuthDialog>();
     }
 
 }
