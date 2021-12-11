@@ -7,13 +7,14 @@ using OnlineShop.Server.Services;
 using OnlineShop.Shared;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace OnlineShop.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ParamsController
+    public class ParamsController: ControllerBase
     {
 
         private readonly ParamsDB _paramsDB;
@@ -37,7 +38,10 @@ namespace OnlineShop.Server.Controllers
         //С помощью GET пользователю возвращается массив размеров картинки
         public async Task<IEnumerable<ImageSize>> GetImageSizes()
         {
-            return await _paramsDB.GetImageSizes();
+            ImageSize[] imageSizes = await _paramsDB.GetImageSizes();
+            if (imageSizes.Length == 0)
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            return imageSizes;
         }
     }
 }
