@@ -1,19 +1,17 @@
-﻿<MudCard Class="my-4">
-    <MudCardHeader>
-            <CardHeaderContent>
-                <MudText Typo="Typo.h6">@Name</MudText>
-            </CardHeaderContent>
-    </MudCardHeader>
-    <MudCardContent>
-        <MudText Typo="Typo.body2">@Price</MudText>
-    </MudCardContent>
-    <MudCardActions>
-        <MudButton Variant="Variant.Text" Color="Color.Primary" @onclick="OnBuy">Купить</MudButton>
-    </MudCardActions>
-</MudCard>
+﻿<MudPaper Class="my-4 pa-4">
+    <MudGrid>
+        <MudItem lg="10" xs="8">
+            <MudText Typo="Typo.h6">@Name</MudText>
+
+        </MudItem>
+        <MudItem lg="2" xs="4" Class="d-flex justify-end align-center pa-auto">
+            <MudButton Variant="Variant.Filled" EndIcon="@Icons.Filled.AddShoppingCart" Color="Color.Primary" @onclick="OnBuy" Size="Size.Medium">@Price</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
 
 @code{
-    
+
     //<MudButton Variant="Variant.Outlined" Color="Color.Primary" @onclick="OnBuy"></MudButton>
 
     [Parameter]
@@ -32,4 +30,5 @@
     {
         OnBuyGood.InvokeAsync(ID);
     }
+
 }
