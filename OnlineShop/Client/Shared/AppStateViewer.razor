@@ -1,0 +1,16 @@
+﻿@using OnlineShop.Client.Services.State
+@inject IDialogService _dialogService
+@inject AppState _appState
+
+<span class="infoButton">
+    <MudIconButton Icon="@Icons.Material.Filled.Info" Color="Color.Secondary" OnClick="DisplayState" Size="Size.Large"/>
+</span>
+
+@code {
+
+    private void DisplayState()
+    {
+        _dialogService.ShowMessageBox("State", _appState.UserState.ToString());
+    }
+
+}

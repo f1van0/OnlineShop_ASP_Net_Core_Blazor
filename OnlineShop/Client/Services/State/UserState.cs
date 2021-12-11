@@ -1,6 +1,6 @@
 ﻿namespace OnlineShop.Client.Services.State
 {
-    public class UserState
+    public record UserState
     {
         public string UserName { get; set; }
     }
