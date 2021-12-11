@@ -12,6 +12,7 @@
 @inject IJSRuntime js;
 @inject AppState _appState;
 @inject HttpClient client
+@inject ISnackbar _snackbar
 
 <MudPaper Class="">
     <h3>Cropper</h3>
@@ -98,7 +99,7 @@
     double height;
     bool parsing = false;
     double _cropRatio = 1;
-    
+
 
     MudChip selectedSize;
     MudChip selectedPalette;
@@ -109,7 +110,7 @@
     private Image<Rgba32> croppedImage;
     private int[][] pixelizeImage;
     private string[,] pixelizeHEXImage;
-    
+
     private ColorPalette _selectedColorPalette = new ColorPalette {Color1 = "#1c1c1c", Color2 = "#404040", Color3 = "#616161", Color4 = "#8a8a8a", Color5 = "#b3b3b3", Color6 = "#d9d9d9", Color7 = "#f5f5f5"};
     ColorPalette[] _colorPalettes;
     private ImageSize _selectedImageSize;
@@ -347,9 +348,20 @@
             _selectedColorPalette = (ColorPalette) selectedPalette.Value;
     }
 
-    private void SaveImage()
+    private async void SaveImage()
     {
-    // pixelizeImage
+        try
+        {
+            UserImage image = await _appState.ImageRepository.UploadImage(pixelizeImage, _selectedImageSize, _selectedColorPalette);
+            if (image != null)
+                _snackbar.Add("Saved successfully", Severity.Success);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            _snackbar.Add("Error while uploading", Severity.Error);
+            throw;
+        }
     }
 
     private string FitImage()

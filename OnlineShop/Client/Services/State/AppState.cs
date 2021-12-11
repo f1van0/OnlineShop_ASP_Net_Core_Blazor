@@ -11,10 +11,12 @@ namespace OnlineShop.Client.Services.State
             _client = client;
             ColorPalettesRepository = new ColorPalettesRepository(_client);
             ImageSizesRepository = new ImageSizesRepository(_client);
+            ImageRepository = new ImageRepository(_client);
         }
 
         public UserState UserState { get; set; } = new UserState();
         public ColorPalettesRepository ColorPalettesRepository { get; set; }
         public ImageSizesRepository ImageSizesRepository { get; set; }
+        public ImageRepository ImageRepository { get; set; }
     }
 }
