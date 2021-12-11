@@ -3,6 +3,7 @@
 @using System.Net
 @using OnlineShop.Client.Pages.Auth
 @using OnlineShop.Client.Services.State
+@using OnlineShop.Shared
 @inject CookieStorage _cookieStorage
 @inject HttpClient _httpClient
 @inject AppState _appState
@@ -34,8 +35,8 @@
 
             if (responseMessage.StatusCode == HttpStatusCode.OK)
             {
-                var username = await responseMessage.Content.ReadAsStringAsync();
-                _appState.UserState.UserName = username;
+                var username = await responseMessage.Content.ReadFromJsonAsync<UserInfo>();
+                _appState.UserState = username;
             }
         }
     }

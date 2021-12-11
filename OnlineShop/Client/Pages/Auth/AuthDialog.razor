@@ -64,9 +64,11 @@
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                _appState.UserState.UserName = username;
+                _appState.UserState = await response.Content.ReadFromJsonAsync<UserInfo>();
+                
                 var token = response.Headers.WwwAuthenticate.FirstOrDefault();
                 client.DefaultRequestHeaders.Authorization = token;
+                
                 MudDialog.Close(DialogResult.Ok(true));
                 Snackbar.Clear();
                 Snackbar.Add("Авторизация прошла успешно", Severity.Info);
@@ -98,7 +100,7 @@
             userCredentials.Password = password;
 
             var response = await client.PostAsJsonAsync<UserCredentials>("api/Auth", userCredentials);
-            
+
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 MudDialog.Close(DialogResult.Ok(true));
