@@ -17,6 +17,12 @@
             <MudNavLink Href="/main" Icon="@Icons.Filled.Home">
                 Home
             </MudNavLink>
+            @if (_appState.UserState.Role == "Admin")
+            {
+                <MudNavLink Href="/admin" Icon="@Icons.Filled.Warning">
+                    Admin
+                </MudNavLink>
+            }
             <MudNavLink Href="/counter" Icon="@Icons.Filled.AddCircleOutline">
                 Counter
             </MudNavLink>
