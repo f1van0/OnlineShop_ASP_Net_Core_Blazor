@@ -38,7 +38,7 @@ namespace OnlineShop.Server.Controllers
         [Produces("application/json")]
         //С помощью POST из Body по пришедшим состороны пользователя credentials, система пытается
         // зарегистрировать его в системе и возвращает пользователю результат
-        public async Task<ActionResult> Post([FromBody] UserCredentials credentials)
+        public async Task<ActionResult<UserInfo>> Post([FromBody] UserCredentials credentials)
         {
             bool isExists = await _userRepository.UserExist(credentials.UserName);
             if (isExists)
@@ -49,11 +49,11 @@ namespace OnlineShop.Server.Controllers
                 return BadRequest();
 
             var jwtToken = NewToken(user.ID, user.RoleID == 2);
-
+            var userInfo = new UserInfo(user.UserName, user.RoleID);
 
             HttpContext.Response.Headers.Append("WWW-Authenticate", "Bearer " + jwtToken);
             HttpContext.Response.Cookies.Append("_token", jwtToken);
-            return Ok();
+            return Ok(userInfo);
         }
 
         /// <summary>
@@ -69,29 +69,30 @@ namespace OnlineShop.Server.Controllers
         [Produces("application/json")]
         //С помощью PUT из Body по пришедшим со стороны пользователя credentials, система пытается
         // залогинить (найти сведения, тождественные credentials) и возвращает пользователю результат
-        public async Task<ActionResult> Put([FromBody] UserCredentials credentials)
+        public async Task<ActionResult<UserInfo>> Put([FromBody] UserCredentials credentials)
         {
             User user = await _userRepository.Login(credentials);
             if (user == null)
                 return Unauthorized();
 
             var jwtToken = NewToken(user.ID, user.RoleID == 2);
-
+            var userInfo = new UserInfo(user.UserName, user.RoleID);
+            
             HttpContext.Response.Headers.Append("WWW-Authenticate", "Bearer " + jwtToken);
             HttpContext.Response.Cookies.Append("_token", jwtToken);
-            return Ok();
+            return Ok(userInfo);
         }
 
         [Authorize]
         [HttpGet("[action]")]
-        public async Task<ActionResult<string>> GetUserInfo()
+        public async Task<ActionResult<UserInfo>> GetUserInfo()
         {
             JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
             var payload = jwtSecurityToken.GetPayload<JWTPayload>();
-            var username = await _userRepository.NicknameById(payload.UserId);
+            var userInfo = await _userRepository.UserInfoById(payload.UserId);
 
-            if (username != null)
-                return Ok(username);
+            if (userInfo != null)
+                return Ok(userInfo);
 
             return Unauthorized();
         }
