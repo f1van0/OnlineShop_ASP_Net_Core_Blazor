@@ -46,7 +46,7 @@ namespace OnlineShop.Server.DB
         public Task SetColorPaletteOfUserImage(int userID, UserImage userImage)
         {
             var sql = @"UPDATE online_shop.images SET colorPaletteID=@ColorPaletteID WHERE ID=@ID";
-            return _db.Query<dynamic>(sql, new {ColorPaletteID = userImage.PaletteID, ID = userID});
+            return _db.Query<dynamic>(sql, new {ColorPaletteID = userImage.ColorPaletteID, ID = userID});
         }
     }
 }

@@ -22,7 +22,7 @@ namespace OnlineShop.Shared
         public int[][] Image { get; set; }
         [Required]
         [JsonPropertyName("paletteID")]
-        public int PaletteID { get; set; }
+        public int ColorPaletteID { get; set; }
         [Required]
         [JsonPropertyName("date")]
         public DateTime Date { get; set; }
