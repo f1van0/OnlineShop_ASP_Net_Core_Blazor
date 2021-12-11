@@ -19,11 +19,7 @@ namespace OnlineShop.Server.DB
         public Task<List<UserImage>> GetUserImages(int userId)
         {
             var sql = "SELECT * FROM online_shop.images WHERE OwnerID=@userId;";
-            return _db.Select<UserImage, int, dynamic>(sql, (m, p) =>
-            {
-                m.PaletteID = p;
-                return m;
-            }, new {userId});
+            return _db.Select<UserImage, dynamic>(sql, new {userId});
         }
 
         public async Task<UserImage> SaveUserImage(int userId, int[][] pixels, int paletteId, int sizeId)
@@ -43,7 +39,7 @@ namespace OnlineShop.Server.DB
                 ColorPaletteID = paletteId,
                 Date = DateTime.Now
             });
-            
+
             return userImages.FirstOrDefault();
         }
 
