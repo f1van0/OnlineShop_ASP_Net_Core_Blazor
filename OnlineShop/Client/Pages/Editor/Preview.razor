@@ -1,9 +1,10 @@
 ﻿@using SixLabors.ImageSharp.PixelFormats
+@using System.Globalization
 
 <div>
     @for (int y = 0; y < Pixels.GetLength(1); y++)
     {
-        <div class="cell-row">
+        <div class="cell-row" style="font-size: @Size(PixelSize)">
             @for (int x = 0; x < Pixels.GetLength(0); x++)
             {
                 <div class="cell" style="background-color: @Pixels[x, y]"></div>
@@ -16,5 +17,10 @@
 
     [Parameter]
     public string[,] Pixels { get; set; }
+
+    [Parameter]
+    public double PixelSize { get; set; }
+
+    string Size(double value) => value.ToString(CultureInfo.InvariantCulture) + "px";
 
 }
