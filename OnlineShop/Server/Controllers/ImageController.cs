@@ -70,6 +70,7 @@ namespace OnlineShop.Server.Controllers
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Exception while inserting image to DB");
+                
                 }
 
                 return StatusCode(500);
@@ -77,6 +78,24 @@ namespace OnlineShop.Server.Controllers
 
             return Unauthorized();
         }
+
+        // [Authorize]
+        // [HttpPut("[action]")]
+        // //С помощью GET пользователю возвращается список его картинок
+        // public async Task<ActionResult<IEnumerable<UserImage>>> GetImages()
+        // {
+        //     JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
+        //     var payload = jwtSecurityToken.GetPayload<JWTPayload>();
+        //     if (payload.UserId != -1)
+        //     {
+        //         var userImages = await _imagesDb.GetUserImages(payload.UserId);
+        //         return Ok(userImages);
+        //     }
+        //     else
+        //     {
+        //         return Unauthorized(null);
+        //     }
+        // }
 
         [Authorize]
         [HttpPost("[action]")]
