@@ -1,0 +1,13 @@
+﻿@using OnlineShop.Shared
+<MudCard Class="my-2 pa-4 flex-column">
+    <MudText>@purchase.GoodsName</MudText>
+    <MudText>@purchase.Price</MudText>
+        <MudText Class="justify-end">@purchase.Date</MudText>
+    </MudCard>
+
+@code {
+
+    [Parameter]
+    public PurchaseGoods purchase { get; set; }
+
+}

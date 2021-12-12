@@ -1,14 +1,16 @@
-﻿@foreach (var constructor in Purchases)
+﻿@using OnlineShop.Shared
+
+@if (Purchases != null)
 {
-    <MudCard Class="my-2 pa-4 flex-column">
-        <MudText>Constructor</MudText>
-        <MudText Class="justify-end">@DateTime.Now</MudText>
-    </MudCard>
+    @foreach (var purchase in Purchases)
+    {
+        <PurchaseItem purchase="@purchase"></PurchaseItem>
+    }
 }
 
 @code {
 
     [Parameter]
-    public object[] Purchases { get; set; }
+    public PurchaseGoods[] Purchases { get; set; }
 
 }

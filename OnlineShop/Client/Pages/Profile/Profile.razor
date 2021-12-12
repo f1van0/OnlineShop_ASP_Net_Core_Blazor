@@ -1,7 +1,12 @@
 ﻿@page "/profile"
 @layout MainLayout
 @using OnlineShop.Client.Services.State
+@using OnlineShop.Shared
+@using System.Net
+@using OnlineShop.Client.Pages.Auth
 @inject AppState _appState
+@inject HttpClient client
+@inject IDialogService Dialog
 
 <h3>Profile</h3>
 <MudText>User: @_appState.UserState.UserName</MudText>
@@ -15,7 +20,23 @@
 </MudTabs>
 
 @code {
-    public object[] Images = new[] {""};
-    public object[] Purchases = new[] {""};
+    public UserImage[] Images;
+    public PurchaseGoods[] Purchases;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var requestOperations = await client.PutAsync("api/Operations", null);
+        var requestImages = await client.PutAsync("api/Images", null);
+        if (requestOperations.StatusCode != HttpStatusCode.Unauthorized && requestImages.StatusCode != HttpStatusCode.Unauthorized)
+        {
+            Purchases = await requestOperations.Content.ReadFromJsonAsync<PurchaseGoods[]>();
+            Images = await requestImages.Content.ReadFromJsonAsync<UserImage[]>();
+        }
+        else
+        {
+            Dialog.Show<AuthDialog>();
+        }
+    }
+
     
 }
