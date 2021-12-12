@@ -3,6 +3,7 @@
 @using OnlineShop.Shared
 @using OnlineShop.Client.Pages.Auth
 @using System.Net
+@using System.Text
 @using OnlineShop.Client.Services.State
 @using OnlineShop.Server.DB.Mappers
 @inject HttpClient client
@@ -10,6 +11,41 @@
 @inject IDialogService Dialog
 @inject AppState _appState
 
+<MudCard>
+    <MudText Typo="Typo.h6">Фильтрация</MudText>
+    <MudGrid>
+        @if (colorPalettes != null)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudSelect T="ColorPalette" @bind-Value="@goodsFilter.ColorPalette" Label="Цветовая палитра" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" ToStringFunc="@colorPaletteConverter">
+                    @foreach (var item in colorPalettes)
+                    {
+                        <MudSelectItem Value="@item"/>
+                    }
+                </MudSelect>
+            </MudItem>
+        }
+        @if (imageSizes != null)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudSelect T="ImageSize" @bind-Value="@goodsFilter.ImageSize" Label="Размер рамки" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" ToStringFunc="@imageSizeConverter">
+                    @foreach (var item in imageSizes)
+                    {
+                        <MudSelectItem Value="@item"/>
+                    }
+                </MudSelect>
+            </MudItem>
+        }
+    </MudGrid>
+    <MudGrid>
+        <MudItem xs="10" sm="1" md="3">
+            <MudButton Variant="Variant.Filled" @onclick="GetGoods">Применить</MudButton>
+        </MudItem>
+        <MudItem xs="10" sm="1" md="3">
+            <MudButton Variant="Variant.Outlined" @onclick="ResetFilter">Сбросить фильтр</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudCard>
 <MudContainer>
     @* <MudButton Color="Color.Dark" @onclick="OpenLoginDialog">Normal Snackbar</MudButton> *@
     @if (goodsStats == null)
@@ -26,9 +62,15 @@
 </MudContainer>
 
 @code {
+
+    GoodsFilter goodsFilter;
+    Func<ColorPalette, string> colorPaletteConverter = cp => cp?.Name;
+    Func<ImageSize, string> imageSizeConverter = cp => cp?.Name;
+
     //private Dictionary<string, string> buttonStrings;
     private GoodsStats[] goodsStats;
     private ColorPalette[] colorPalettes;
+    private ImageSize[] imageSizes;
     private string test;
 
     //Спавн, значения и прочее для модалки с логином
@@ -36,9 +78,21 @@
     private string password;
 
 
+    public void ResetFilter()
+    {
+        goodsFilter = new GoodsFilter() {ColorPalette = null, ImageSize = null};
+        GetGoods();
+    }
+
+    public async void GetGoods()
+    {
+        HttpResponseMessage responseMessage = await client.PutAsJsonAsync("api/Catalog", goodsFilter);
+        goodsStats = await responseMessage.Content.ReadFromJsonAsync<GoodsStats[]>();
+    }
+
     public async Task BuyGoods(int goodsID)
     {
-        var response = await client.PostAsJsonAsync<int>("api/Catalog", goodsID);
+        var response = await client.PostAsJsonAsync("api/Catalog", goodsID);
     // ResponseStatus result = await response.Content.ReadFromJsonAsync<ResponseStatus>();
 
         switch (response.StatusCode)
@@ -62,13 +116,15 @@
     protected override async Task OnInitializedAsync()
     {
         Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-        goodsStats = await client.GetFromJsonAsync<GoodsStats[]>("api/Catalog");
+        goodsFilter = new GoodsFilter() {ColorPalette = null, ImageSize = null};
+        GetGoods();
+        colorPalettes = await _appState.ColorPalettesRepository.GetPalettes();
+        imageSizes = await _appState.ImageSizesRepository.GetImageSizes();
     }
 
     private async Task OpenLoginDialog()
     {
         Dialog.Show<AuthDialog>();
-    // StateHasChanged();
     }
 
 }

@@ -26,11 +26,15 @@ namespace OnlineShop.Server.Controllers
             _catalogDb = catalogDb;
         }
 
-        [HttpGet]
+        [HttpPut]
         //С помощью GET пользователю возвращается список товаров
-        public async Task<IEnumerable<GoodsStats>> Get()
+        public async Task<ActionResult<IEnumerable<GoodsStats>>> Put([FromBody] GoodsFilter goodsFilter)
         {
-            return await _catalogDb.GetGoods();
+            var goods = await _catalogDb.GetGoods(goodsFilter);
+            if (goods.Count == 0)
+                return NotFound();
+            
+            return Ok(goods);
         }
 
         [Authorize]
@@ -42,7 +46,6 @@ namespace OnlineShop.Server.Controllers
         //добавить товар в список покупок
         public ActionResult Post([FromBody] int goodsID)
         {
-            _logger.LogInformation("test");
             JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
             var payload = jwtSecurityToken.GetPayload<JWTPayload>();
             if (payload.UserId != -1)
