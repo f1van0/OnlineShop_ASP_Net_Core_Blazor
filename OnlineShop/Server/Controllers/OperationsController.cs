@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -26,27 +26,22 @@ namespace OnlineShop.Server.Controllers
             _operationsDb = operationsDb;
         }
 
-        [Authorize]
-        [HttpPut]
+        [HttpPost("[action]")]
         //С помощью GET пользователю возвращается список его операций
-        public async Task<ActionResult<PurchaseGoods[]>> Put()
+        public async Task<ActionResult<PurchaseGoods[]>> GetUserOperations([FromBody] int uselessInfo)
         {
-            JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
-            var payload = jwtSecurityToken.GetPayload<JWTPayload>();
-            if (payload.UserId != -1)
+            //JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
+            //var payload = jwtSecurityToken.GetPayload<JWTPayload>();
+            var operations = await _operationsDb.GetOperations(uselessInfo);
+            
+            if (operations.Count != 0)
             {
-                var result = _operationsDb.GetOperations(payload.UserId);
-                if (result.IsCompleted)
-                {
-                    return Ok(result.Result);
-                }
-                else
-                {
-                    return BadRequest(null);
-                }
+                return Ok(operations);
             }
-
-            return Unauthorized(null);
+            else
+            {
+                return NotFound(null);
+            }
         }
     }
 }

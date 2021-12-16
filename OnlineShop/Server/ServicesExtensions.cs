@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
@@ -24,6 +24,7 @@ namespace OnlineShop.Server
             services.AddTransient<CatalogDB>();
             services.AddTransient<ImagesDB>();
             services.AddTransient<ParamsDB>();
+            services.AddTransient<OperationsDB>();
         }
 
         public static void AddDapperMappers(this IServiceCollection services)
