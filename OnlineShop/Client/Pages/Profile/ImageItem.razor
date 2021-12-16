@@ -1,14 +1,18 @@
 ﻿@using OnlineShop.Shared
 @using OnlineShop.Server.DB.Mappers
+@using OnlineShop.Client.Services.State
+@using OnlineShop.Client.Pages.Editor
+
+@inject AppState _appState
 <MudCard Class="my-2 pa-4">
     @if (imagePixels == null)
     {
         <MudPaper Elevation="1" Height="100px" Width="100px"></MudPaper>
-        
+
     }
     else
     {
-        <MudPaper Elevation="1"><Preview Pixels="@imagePixels"></Preview></MudPaper>
+        <MudPaper Elevation="1"><Preview Pixels="@imagePixels" PixelSize="3"></Preview></MudPaper>
     }
     <MudText>Палитра: @colorPalette.Name</MudText>
     <MudText>Размер рамки: @image.SizeID</MudText>
@@ -18,45 +22,49 @@
 
     [Parameter]
     public UserImage image { get; set; }
-    public ColorPalette colorPalette;
-    
+
     public string[,] imagePixels;
-    
-    
+    public ColorPalette? colorPalette;
+
+
     protected override async Task OnInitializedAsync()
     {
-        if (image != null && colorPalette != null)
+        if (image != null)
         {
-            imagePixels = new string[image.Image.Length, image.Image[0].Length];
-            for (int x = 0; x < image.Image.Length; x++)
+            colorPalette = _appState.ColorPalettesRepository.GetPaletteByID(image.ColorPaletteID);
+            if (colorPalette != null)
             {
-                for (int y = 0; y < image.Image[x].Length; y++)
+                imagePixels = new string[image.Image.Length, image.Image[0].Length];
+                for (int x = 0; x < image.Image.Length; x++)
                 {
-                    switch (image.Image[x][y])
+                    for (int y = 0; y < image.Image[x].Length; y++)
                     {
-                        case 0:
-                            imagePixels[x, y] = colorPalette.Color1;
-                            break;
-                        case 1:
-                            imagePixels[x, y] = colorPalette.Color2;
-                            break;
-                        case 2:
-                            imagePixels[x, y] = colorPalette.Color3;
-                            break;
-                        case 3:
-                            imagePixels[x, y] = colorPalette.Color4;
-                            break;
-                        case 4:
-                            imagePixels[x, y] = colorPalette.Color5;
-                            break;
-                        case 51:
-                            imagePixels[x, y] = colorPalette.Color6;
-                            break;
-                        default:
-                            imagePixels[x, y] = colorPalette.Color7;
-                            break;
+                        switch (image.Image[x][y])
+                        {
+                            case 0:
+                                imagePixels[x, y] = colorPalette.Color1;
+                                break;
+                            case 1:
+                                imagePixels[x, y] = colorPalette.Color2;
+                                break;
+                            case 2:
+                                imagePixels[x, y] = colorPalette.Color3;
+                                break;
+                            case 3:
+                                imagePixels[x, y] = colorPalette.Color4;
+                                break;
+                            case 4:
+                                imagePixels[x, y] = colorPalette.Color5;
+                                break;
+                            case 51:
+                                imagePixels[x, y] = colorPalette.Color6;
+                                break;
+                            default:
+                                imagePixels[x, y] = colorPalette.Color7;
+                                break;
+                        }
+
                     }
-                    
                 }
             }
         }

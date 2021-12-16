@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -26,22 +26,19 @@ namespace OnlineShop.Server.Controllers
             _imagesDb = imagesDB;
         }
 
-        [Authorize]
-        [HttpGet("[action]")]
-        //С помощью GET пользователю возвращается список его картинок
-        public async Task<IEnumerable<UserImage>> GetImages()
+        [HttpPost("[action]")]
+        //С помощью POST пользователю возвращается список его картинок
+        public async Task<ActionResult<UserImage>> GetImages([FromBody] int uselessInfo)
         {
-            JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
-            var payload = jwtSecurityToken.GetPayload<JWTPayload>();
-            if (payload.UserId != -1)
-            {
-                var userImages = await _imagesDb.GetUserImages(payload.UserId);
-                return userImages;
-            }
+            //JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
+            //var payload = jwtSecurityToken.GetPayload<JWTPayload>();
+
+            var userImages = await _imagesDb.GetUserImages(uselessInfo);
+            
+            if (userImages.Count != 0)
+                return Ok(userImages);
             else
-            {
-                return null;
-            }
+                return NotFound(null);
         }
 
         [Authorize]

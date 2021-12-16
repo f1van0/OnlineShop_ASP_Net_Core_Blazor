@@ -1,4 +1,4 @@
-﻿using OnlineShop.Server.DB.Mappers;
+using OnlineShop.Server.DB.Mappers;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -19,6 +19,17 @@ namespace OnlineShop.Client.Services.State
         {
             _palettes ??= await FetchPalettes();
             return _palettes;
+        }
+
+        public ColorPalette? GetPaletteByID(int paletteID)
+        {
+            foreach(var item in _palettes)
+            {
+                if (item.ID == paletteID)
+                    return item;
+            }
+
+            return null;
         }
 
         private async Task<ColorPalette[]> FetchPalettes() =>
