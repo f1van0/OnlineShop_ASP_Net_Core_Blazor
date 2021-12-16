@@ -78,22 +78,30 @@
     private string password;
 
 
-    public void ResetFilter()
+    public async Task ResetFilter()
     {
         goodsFilter = new GoodsFilter() {ColorPalette = null, ImageSize = null};
-        GetGoods();
+        await GetGoods();
     }
 
-    public async void GetGoods()
+    public async Task GetGoods()
     {
         HttpResponseMessage responseMessage = await client.PutAsJsonAsync("api/Catalog", goodsFilter);
-        goodsStats = await responseMessage.Content.ReadFromJsonAsync<GoodsStats[]>();
+        if (responseMessage.StatusCode == HttpStatusCode.NotFound)
+        {
+            goodsStats = new GoodsStats[0];
+        }
+        else if (responseMessage.StatusCode == HttpStatusCode.OK)
+        {
+            goodsStats = await responseMessage.Content.ReadFromJsonAsync<GoodsStats[]>();
+        }
+
     }
 
     public async Task BuyGoods(int goodsID)
     {
         var response = await client.PostAsJsonAsync("api/Catalog", goodsID);
-    // ResponseStatus result = await response.Content.ReadFromJsonAsync<ResponseStatus>();
+        // ResponseStatus result = await response.Content.ReadFromJsonAsync<ResponseStatus>();
 
         switch (response.StatusCode)
         {
