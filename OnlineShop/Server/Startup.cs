@@ -31,7 +31,7 @@ namespace OnlineShop.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<DbConnection>((provider) =>
+            services.AddTransient<DbConnection>((provider) =>
             {
                 var conn = new MySql.Data.MySqlClient.MySqlConnection() {ConnectionString = Configuration.GetConnectionString("MySql")};
                 conn.Open();
@@ -60,7 +60,7 @@ namespace OnlineShop.Server
                 );
 
 
-            services.RegisterServices();
+            services.RegisterServices(Configuration);
             services.AddDapperMappers();
             services.AddControllersWithViews();
             services.AddRazorPages();
