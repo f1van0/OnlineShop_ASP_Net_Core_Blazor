@@ -31,7 +31,6 @@ namespace OnlineShop.Server.DB.Mappers
                 return new List<PurchaseGoods>();
             
             }
-
         }
     }
 }
