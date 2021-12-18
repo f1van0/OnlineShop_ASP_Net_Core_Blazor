@@ -24,10 +24,5 @@ namespace OnlineShop.Shared
         [Timestamp]
         public DateTime Date { get; set; }
 
-        public User()
-        {
-            //Id = Guid.NewGuid();
-            //Registered = DateTime.Now;
-        }
     }
 }
