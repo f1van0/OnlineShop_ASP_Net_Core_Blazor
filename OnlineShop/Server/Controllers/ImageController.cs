@@ -109,5 +109,11 @@ namespace OnlineShop.Server.Controllers
 
             return Unauthorized();
         }
+        
+        [HttpGet("[action]")]
+        public async Task<IEnumerable<ValueStats>> GetStatistics()
+        {
+            return await _imagesDb.GetAllImages();
+        }
     }
 }

@@ -8,14 +8,18 @@ using System.Threading.Tasks;
 
 namespace OnlineShop.Shared
 {
-    record ValueStats
+    public record ValueStats
     {
-        [JsonPropertyName("id")]
+        [JsonPropertyName("ColorPaletteID")]
         [Required]
-        int ID { get; set; }
+        public int ColorPaletteID { get; set; }
+        
+        [JsonPropertyName("SizeID")]
+        [Required]
+        public int SizeID { get; set; }
 
         [JsonPropertyName("count")]
         [Required]
-        int count { get; set; }
+        public int count { get; set; }
     }
 }

@@ -48,5 +48,20 @@ namespace OnlineShop.Server.DB
             var sql = @"UPDATE online_shop.images SET colorPaletteID=@ColorPaletteID WHERE ID=@ID";
             return _db.Query<dynamic>(sql, new {ColorPaletteID = userImage.ColorPaletteID, ID = userID});
         }
+
+        public Task<List<ValueStats>> GetAllImages()
+        {
+            var sql = "SELECT " +
+                                "color_palettes.ID AS ColorPaletteID," +
+                                "image_sizes.ID AS SizeID, " +
+                                "COUNT(img.ID) AS count " +
+                            "FROM images img " +
+                                "LEFT OUTER JOIN color_palettes " +
+                                    "ON img.ColorPaletteID = color_palettes.ID " +
+                                "LEFT OUTER JOIN image_sizes " +
+                                    "ON img.SizeID = image_sizes.ID " +
+                            "GROUP BY image_sizes.ID, color_palettes.ID";
+            return _db.Select<ValueStats>(sql);
+        }
     }
 }

@@ -43,5 +43,11 @@ namespace OnlineShop.Server.Controllers
                 return NotFound(null);
             }
         }
+        
+        [HttpGet("[action]")]
+        public async Task<IEnumerable<ValueStats>> GetStatistics()
+        {
+            return await _operationsDb.GetAllOperations();
+        }
     }
 }
