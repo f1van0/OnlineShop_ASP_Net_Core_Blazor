@@ -2,14 +2,11 @@
 @layout MainLayout
 @using OnlineShop.Client.Services.State
 @using OnlineShop.Shared
-@using System.Net
-@using OnlineShop.Client.Pages.Auth
-@inject AppState _appState
 @inject HttpClient client
 @inject IDialogService Dialog
 
 <h3>Profile</h3>
-<MudText>User: @_appState.UserState.UserName</MudText>
+<MudText>User: @AppState.UserState.UserName</MudText>
 <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true" ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
     <MudTabPanel Text="Покупки" Icon="@Icons.Material.Filled.ShoppingCart">
         <PurchaseView Purchases="Purchases"></PurchaseView>
@@ -20,6 +17,10 @@
 </MudTabs>
 
 @code {
+
+    [CascadingParameter(Name = "AppState")]
+    public AppState AppState { get; set; }
+
     public UserImage[] Images;
     public PurchaseGoods[] Purchases;
 
@@ -27,15 +28,15 @@
     {
         var requestOperations = await client.PostAsJsonAsync("api/Operations/GetUserOperations", 1);
         var requestImages = await client.PostAsJsonAsync("api/Image/GetImages", 1);
-        //if (requestOperations.StatusCode != HttpStatusCode.Unauthorized && requestImages.StatusCode != HttpStatusCode.Unauthorized)
-        //{
+    //if (requestOperations.StatusCode != HttpStatusCode.Unauthorized && requestImages.StatusCode != HttpStatusCode.Unauthorized)
+    //{
         Purchases = await requestOperations.Content.ReadFromJsonAsync<PurchaseGoods[]>();
         Images = await requestImages.Content.ReadFromJsonAsync<UserImage[]>();
-        //}
-        //else
-        //{
-        //    Dialog.Show<AuthDialog>();
-        //}
+    //}
+    //else
+    //{
+    //    Dialog.Show<AuthDialog>();
+    //}
     }
 
 

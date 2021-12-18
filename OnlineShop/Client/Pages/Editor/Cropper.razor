@@ -10,7 +10,6 @@
 @using SixLabors.ImageSharp.PixelFormats
 @using Color = MudBlazor.Color
 @inject IJSRuntime js;
-@inject AppState _appState;
 @inject HttpClient client
 @inject ISnackbar _snackbar
 @inject NavigationManager _navigationManager
@@ -110,6 +109,10 @@
 </MudPaper>
 
 @code {
+
+    [CascadingParameter(Name = "AppState")]
+    AppState AppState { get; set; }
+
     Blazor.Cropper.Cropper cropper;
     private ElementReference _image;
     IBrowserFile file;
@@ -136,9 +139,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _imageSizes = await _appState.ImageSizesRepository.GetImageSizes();
+        _imageSizes = await AppState.ImageSizesRepository.GetImageSizes();
         _selectedImageSize = _imageSizes[0];
-        _colorPalettes = await _appState.ColorPalettesRepository.GetPalettes();
+        _colorPalettes = await AppState.ColorPalettesRepository.GetPalettes();
         _selectedColorPalette = _colorPalettes[0];
     }
 
@@ -374,7 +377,7 @@
     {
         try
         {
-            UserImage image = await _appState.ImageRepository.UploadImage(pixelizeImage, _selectedImageSize, _selectedColorPalette);
+            UserImage image = await AppState.ImageRepository.UploadImage(pixelizeImage, _selectedImageSize, _selectedColorPalette);
             if (image != null)
             {
                 _snackbar.Add("Saved successfully", Severity.Success);
