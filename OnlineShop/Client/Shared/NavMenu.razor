@@ -1,6 +1,7 @@
 ﻿@using OnlineShop.Client.Services.State
 @using OnlineShop.Client.Pages.Auth
-@inject AppState _appState
+@using OnlineShop.Shared
+@implements IDisposable
 @inject IDialogService _dialog
 
 <MudDrawer @bind-Open="Open" Variant="@DrawerVariant.Responsive">
@@ -17,7 +18,7 @@
             <MudNavLink Href="/main" Icon="@Icons.Filled.Home">
                 Home
             </MudNavLink>
-            @if (_appState.UserState.Role == "Admin")
+            @if (AppState.UserState.Role == "Admin")
             {
                 <MudNavLink Href="/admin" Icon="@Icons.Filled.Warning">
                     Admin
@@ -54,23 +55,28 @@
 
 @code {
 
+    [CascadingParameter(Name = "AppState")]
+    public AppState AppState { get; set; }
+
     [Parameter]
     public bool Open { get; set; } = false;
 
     [Parameter]
     public EventCallback ClickedClose { get; set; }
 
-    private void onClicked()
-    {
+    protected override void OnInitialized() =>
+        AppState.StateChanged += StateHasChanged;
+
+    public void Dispose() =>
+        AppState.StateChanged -= StateHasChanged;
+
+    private void onClicked() =>
         ClickedClose.InvokeAsync();
-    }
 
-    bool IsAuthorized() =>
-        !string.IsNullOrEmpty(_appState.UserState.UserName);
+    private bool IsAuthorized() => 
+        !string.IsNullOrEmpty(AppState.UserState.UserName);
 
-    private void DisplayLoginDialog()
-    {
+    private void DisplayLoginDialog() =>
         _dialog.Show<AuthDialog>();
-    }
 
 }
