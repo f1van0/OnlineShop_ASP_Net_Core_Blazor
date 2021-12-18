@@ -1,0 +1,56 @@
+﻿@using OnlineShop.Client.Services.State
+@inject HttpClient _client
+
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject AppState _appState
+
+<CascadingValue Value="@State" Name="AppState">
+    @Body
+</CascadingValue>
+
+@code {
+
+    [CascadingParameter(Name = "_root")]
+    public AppState RootState { get; set; }
+
+    public AppState State { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        State ??= RootState;
+        if (State == null)
+        {
+            Console.WriteLine("Parameters were null");
+            return;
+        }
+
+        Console.WriteLine("Parameters set");
+        State.StateChanged += UpdateState;
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        State ??= RootState;
+        if (State == null)
+        {
+            Console.WriteLine("Initialize failed");
+            return;
+        }
+
+        Console.WriteLine("Initialized");
+        State.StateChanged += UpdateState;
+    }
+
+    private void UpdateState()
+    {
+        Console.WriteLine("Global state updated");
+        StateHasChanged();
+    }
+
+    public void Dispose() => 
+        State.StateChanged -= UpdateState;
+
+}

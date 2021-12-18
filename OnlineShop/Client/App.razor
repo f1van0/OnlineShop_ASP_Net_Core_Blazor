@@ -1,9 +1,9 @@
 @using OnlineShop.Client.Services
-@using System.Net.Http.Headers
-@using System.Net
 @using OnlineShop.Client.Pages.Auth
 @using OnlineShop.Client.Services.State
 @using OnlineShop.Shared
+@using System.Net.Http.Headers
+@using System.Net
 @inject CookieStorage _cookieStorage
 @inject HttpClient _httpClient
 @inject AppState _appState
@@ -11,33 +11,40 @@
 @inject Navigation _navigationManager
 @inject ISnackbar _snackBar
 
-<MudThemeProvider/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
-<Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true" OnNavigateAsync="OnNavigateAsync">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
-    </Found>
-    <NotFound>
-        <NotFoundPage></NotFoundPage>
-    </NotFound>
-</Router>
+<CascadingValue Name="AppState" Value="@_appState">
+    <MudThemeProvider/>
+    <MudDialogProvider/>
+    <MudSnackbarProvider/>
+    <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true" OnNavigateAsync="OnNavigateAsync">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+        </Found>
+        <NotFound>
+            <NotFoundPage></NotFoundPage>
+        </NotFound>
+    </Router>
+</CascadingValue>
 
 @code{
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine($"Initial User state = {_appState?.UserState}");
         string token = await _cookieStorage.GetCookie<string>("_token");
-        if (token != "")
+
+        if (token == "")
+            Console.WriteLine($"Fail Fetch");
+        else
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var responseMessage = await _httpClient.GetAsync("api/Auth/GetUserInfo");
 
             if (responseMessage.StatusCode == HttpStatusCode.OK)
             {
-                var username = await responseMessage.Content.ReadFromJsonAsync<UserInfo>();
-                _appState.UserState = username;
+                var userState = await responseMessage.Content.ReadFromJsonAsync<UserInfo>();
+                _appState.SetUserState(userState);
             }
+            Console.WriteLine($"Fetch User state = {_appState?.UserState}");
         }
     }
 
@@ -54,7 +61,7 @@
 
             if (_appState.UserState.Role == "Admin")
                 return;
-            
+
             AbortNavigation();
             _snackBar.Add("You are not authorized to access this page", Severity.Error);
         }

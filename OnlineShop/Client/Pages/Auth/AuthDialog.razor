@@ -64,11 +64,12 @@
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                _appState.UserState = await response.Content.ReadFromJsonAsync<UserInfo>();
-                
+                var state = await response.Content.ReadFromJsonAsync<UserInfo>();
+                _appState.SetUserState(state);
+
                 var token = response.Headers.WwwAuthenticate.FirstOrDefault();
                 client.DefaultRequestHeaders.Authorization = token;
-                
+
                 MudDialog.Close(DialogResult.Ok(true));
                 Snackbar.Clear();
                 Snackbar.Add("Авторизация прошла успешно", Severity.Info);

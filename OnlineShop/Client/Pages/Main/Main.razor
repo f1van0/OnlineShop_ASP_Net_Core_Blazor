@@ -9,7 +9,6 @@
 @inject HttpClient client
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
-@inject AppState _appState
 
 <MudCard>
     <MudText Typo="Typo.h6">Фильтрация</MudText>
@@ -63,6 +62,9 @@
 
 @code {
 
+    [CascadingParameter(Name = "AppState")]
+    AppState AppState { get; set; }
+    
     GoodsFilter goodsFilter;
     Func<ColorPalette, string> colorPaletteConverter = cp => cp?.Name;
     Func<ImageSize, string> imageSizeConverter = cp => cp?.Name;
@@ -126,8 +128,8 @@
         Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
         goodsFilter = new GoodsFilter() {ColorPalette = null, ImageSize = null};
         GetGoods();
-        colorPalettes = await _appState.ColorPalettesRepository.GetPalettes();
-        imageSizes = await _appState.ImageSizesRepository.GetImageSizes();
+        colorPalettes = await AppState.ColorPalettesRepository.GetPalettes();
+        imageSizes = await AppState.ImageSizesRepository.GetImageSizes();
     }
 
     private async Task OpenLoginDialog()

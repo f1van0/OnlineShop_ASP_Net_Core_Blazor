@@ -1,11 +1,18 @@
 ﻿using OnlineShop.Shared;
+using System;
 using System.Net.Http;
 
 namespace OnlineShop.Client.Services.State
 {
     public class AppState
     {
-        HttpClient _client;
+        public event Action StateChanged;
+        public UserInfo UserState { get; private set; } = new UserInfo();
+        public ColorPalettesRepository ColorPalettesRepository { get; private set; }
+        public ImageSizesRepository ImageSizesRepository { get; private set; }
+        public ImageRepository ImageRepository { get; private set; }
+
+        private readonly HttpClient _client;
 
         public AppState(HttpClient client)
         {
@@ -15,9 +22,10 @@ namespace OnlineShop.Client.Services.State
             ImageRepository = new ImageRepository(_client);
         }
 
-        public UserInfo UserState { get; set; } = new UserInfo();
-        public ColorPalettesRepository ColorPalettesRepository { get; set; }
-        public ImageSizesRepository ImageSizesRepository { get; set; }
-        public ImageRepository ImageRepository { get; set; }
+        public void SetUserState(UserInfo state)
+        {
+            UserState = state;
+            StateChanged?.Invoke();
+        }
     }
 }

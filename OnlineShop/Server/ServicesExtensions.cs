@@ -1,7 +1,7 @@
 using Dapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MudBlazor;
 using OnlineShop.Server.DB;
 using OnlineShop.Server.DB.Mappers;
 using OnlineShop.Server.DB.Mappers.OnlineShop.Server.DB.Mappers;
@@ -9,14 +9,15 @@ using OnlineShop.Shared;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text.Json;
+using Color = MudBlazor.Color;
 
 namespace OnlineShop.Server
 {
     public static class ServicesExtensions
     {
-        public static void RegisterServices(this IServiceCollection services)
+        public static void RegisterServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<IDataAccess, DataAccess>();
+            services.AddSingleton<IDataAccess, DataAccess>((_) => new DataAccess(configuration.GetConnectionString("MySql")));
             // services.AddTransient<DataBase>();
 
             //Добавление Синглтона MemoryUserRepository для создания автоматической привязки его ко всем нуждающимся в нём скриптам
