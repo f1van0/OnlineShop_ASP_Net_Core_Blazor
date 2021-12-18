@@ -1,9 +1,12 @@
 ﻿@using OnlineShop.Shared
+@using OnlineShop.Server.DB.Mappers
+@using OnlineShop.Client.Services.State
+
 @if (Images != null)
 {
     @foreach (var image in Images)
     {
-        <ImageItem image="@image"></ImageItem>
+        <ImageItem image="@image" colorPalette="@PickPalette(image)"></ImageItem>
     }
 }
 
@@ -12,4 +15,10 @@
     [Parameter]
     public UserImage[] Images { get; set; }
 
+    [CascadingParameter(Name = "AppState")]
+    public AppState AppState { get; set; }
+
+    private ColorPalette PickPalette(UserImage image) => 
+        AppState.ColorPalettesRepository.GetPaletteByID(image.ColorPaletteID);
+    
 }
