@@ -14,14 +14,16 @@
 <MudThemeProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
-<Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true" OnNavigateAsync="OnNavigateAsync">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
-    </Found>
-    <NotFound>
-        <NotFoundPage></NotFoundPage>
-    </NotFound>
-</Router>
+<CascadingValue Name="AppState" Value="@_appState">
+    <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true" OnNavigateAsync="OnNavigateAsync">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+        </Found>
+        <NotFound>
+            <NotFoundPage></NotFoundPage>
+        </NotFound>
+    </Router>
+</CascadingValue>
 
 @code{
 
@@ -35,8 +37,8 @@
 
             if (responseMessage.StatusCode == HttpStatusCode.OK)
             {
-                var username = await responseMessage.Content.ReadFromJsonAsync<UserInfo>();
-                _appState.UserState = username;
+                var userState = await responseMessage.Content.ReadFromJsonAsync<UserInfo>();
+                _appState.UserState = userState;
             }
         }
     }
@@ -54,7 +56,7 @@
 
             if (_appState.UserState.Role == "Admin")
                 return;
-            
+
             AbortNavigation();
             _snackBar.Add("You are not authorized to access this page", Severity.Error);
         }
