@@ -1,0 +1,56 @@
+﻿@using OnlineShop.Client.Services.State
+@using OnlineShop.Server.DB.Mappers
+@using OnlineShop.Shared
+@inject HttpClient client
+@inject AppState _appState
+
+@if (labels != null && series != null)
+        {
+            <MudChart ChartType="ChartType.Bar" ChartSeries="@series" XAxisLabels="@labels" Width="100%" Height="300px" Class="ma-20, pa-40" LegendPosition="Position.Right" ChartOptions="@chartOptions"/>
+        }
+
+@code {
+    [Parameter]
+    public string dataSource { get; set; }
+    
+    ChartOptions chartOptions = new ChartOptions() {XAxisLines = true, MaxNumYAxisTicks = 10, YAxisLines = true, YAxisTicks = 1};
+    public List<ChartSeries> series { get; set; }
+    public string[] labels { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var dataPairs = await client.GetFromJsonAsync<ValueStats[]>(dataSource);
+        await ConvertData(dataPairs);
+    }
+
+    public async Task ConvertData(ValueStats[] pairs)
+    {
+        Statistics stats = new Statistics();
+
+        foreach (var item in pairs)
+        {
+            stats.Add(item);
+        }
+        
+        ImageSize[] imageSizes = await _appState.ImageSizesRepository.GetImageSizes();
+        ColorPalette[] colorPalettes = await _appState.ColorPalettesRepository.GetPalettes();
+        
+        var sizeLabels = new string[imageSizes.Length];
+        var colorPaletteSeries = new List<ChartSeries>();
+        for (int j = 0; j < colorPalettes.Length; j++)
+        {
+            double[] data = new double[imageSizes.Length];
+            for (int i = 0; i < imageSizes.Length; i++)
+            {
+                if (j == 0)
+                    sizeLabels[i] = imageSizes[i].Name;
+
+                data[i] = stats.GetAmount(i + 1, j + 1);
+            }
+            colorPaletteSeries.Add(new ChartSeries() {Name = colorPalettes[j].Name, Data = data});
+        }
+
+        labels = sizeLabels;
+        series = colorPaletteSeries;
+    }
+}

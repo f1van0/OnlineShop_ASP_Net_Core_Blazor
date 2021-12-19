@@ -5,82 +5,22 @@
 @inject HttpClient client
 @inject AppState _appState
 @page "/admin"
-<h3>Admin</h3>
 
-<MudPaper Class="pa-4">
-    @if (colorPaletteSeriesForImages != null && sizeLabelsForImages != null)
-    {
-        <MudText Typo="Typo.h2">Статистика по загруженным изображениям</MudText>
-        <MudChart ChartType="ChartType.Bar" ChartSeries="@colorPaletteSeriesForImages" XAxisLabels="@sizeLabelsForImages" Width="100%" Height="300px" LegendPosition="Position.Right" ChartOptions="@chartOptions"/>
-    }
-    
-    @if (sizeLabelsForPurchases != null && colorPaletteSeriesForPurchases != null)
-        {
-            <MudText Typo="Typo.h2">Статистика по покупкам</MudText>
-            <MudChart ChartType="ChartType.Bar" ChartSeries="@colorPaletteSeriesForPurchases" XAxisLabels="@sizeLabelsForPurchases" Width="100%" Height="300px" LegendPosition="Position.Right" ChartOptions="@chartOptions"/>
-        }
-</MudPaper>
+<MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true" ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
+    <MudTabPanel Text="Статистика" Icon="@Icons.Material.Filled.BarChart">
+        <MudPaper Class="ma-4">
+            <MudText Typo="Typo.h4">Статистика по покупкам</MudText>
+            <StatisticBarChart dataSource="api/Operations/GetStatistics"></StatisticBarChart>
+            <br>
+            <MudText Typo="Typo.h4">Статистика по загруженным изображениям</MudText>
+            <StatisticBarChart dataSource="api/Image/GetStatistics"></StatisticBarChart>
+        </MudPaper>
+    </MudTabPanel>
+</MudTabs>
 
 @code {
-    ChartOptions chartOptions = new ChartOptions() {XAxisLines = true, MaxNumYAxisTicks = 10, YAxisLines = true, YAxisTicks = 1, InterpolationOption = InterpolationOption.NaturalSpline};
-    //InterpolationOption io = 
-    
-    //public ValueStats[] imageSizeStatistics;
-    //public ValueStats[] imagePaletteStatistics;
-    //public ListValueStats[] goodsStatistics;
-    //public Statistics imagesStats;
-    public string[] sizeLabelsForImages;
-    public List<ChartSeries> colorPaletteSeriesForImages;
-    
-    public string[] sizeLabelsForPurchases;
-    public List<ChartSeries> colorPaletteSeriesForPurchases;
-    
-    
-    
     protected override async Task OnInitializedAsync()
     {
-        //var imageSizeStatistics = await client.GetFromJsonAsync<Statistics>("api/Images/GetStatistics");
-        //var imagePaletteStatistics = await client.GetFromJsonAsync<Statistics[]>("api/Images/GetPaletteStatistics");
-        var purchasesDataPairs = await client.GetFromJsonAsync<ValueStats[]>("api/Operations/GetStatistics");
-        var imagesDataPairs = await client.GetFromJsonAsync<ValueStats[]>("api/Image/GetStatistics");
-        var result = await GetData(purchasesDataPairs);
-
-        sizeLabelsForImages = result.Item1;
-        colorPaletteSeriesForImages = result.Item2;
         
-        result = await GetData(imagesDataPairs);
-
-        sizeLabelsForPurchases = result.Item1;
-        colorPaletteSeriesForPurchases = result.Item2;
-    }
-
-    public async Task<(string[], List<ChartSeries>)> GetData(ValueStats[] pairs)
-    {
-        Statistics stats = new Statistics();
-
-        foreach (var item in pairs)
-        {
-            stats.Add(item);
-        }
-        
-        ImageSize[] imageSizes = await _appState.ImageSizesRepository.GetImageSizes();
-        ColorPalette[] colorPalettes = await _appState.ColorPalettesRepository.GetPalettes();
-        
-        var sizeLabels = new string[imageSizes.Length];
-        var colorPaletteSeries = new List<ChartSeries>();
-        for (int j = 0; j < colorPalettes.Length; j++)
-        {
-            double[] data = new double[imageSizes.Length];
-            for (int i = 0; i < imageSizes.Length; i++)
-            {
-                if (j == 0)
-                    sizeLabels[i] = imageSizes[i].Name;
-
-                data[i] = stats.GetAmount(i, j);
-            }
-            colorPaletteSeries.Add(new ChartSeries() {Name = colorPalettes[j].Name, Data = data});
-        }
-
-        return (sizeLabels, colorPaletteSeries);
     }
 }

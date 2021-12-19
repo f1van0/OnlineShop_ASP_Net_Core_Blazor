@@ -9,46 +9,39 @@
     <MudDrawerHeader Style="height: calc(var(--mud-appbar-height) - var(--mud-appbar-height)/4);">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="onClicked"/>
         <MudLink Href="/main" Underline="Underline.None" Color="Color.Default" Typo="Typo.h5" Class="ml-3 my-auto">
-            OnlineShop
+            Online Shop
         </MudLink>
     </MudDrawerHeader>
 
     <MudDrawerContainer>
         <MudNavMenu>
             <MudNavLink Href="/main" Icon="@Icons.Filled.Home">
-                Home
-            </MudNavLink>
-            @if (AppState.UserState.Role == "Admin")
-            {
-                <MudNavLink Href="/admin" Icon="@Icons.Filled.Warning">
-                    Admin
-                </MudNavLink>
-            }
-            <MudNavLink Href="/counter" Icon="@Icons.Filled.AddCircleOutline">
-                Counter
-            </MudNavLink>
-            <MudNavLink Href="/fetchdata" Icon="@Icons.Filled.ViewList">
-                Fetch data
+                Каталог товаров
             </MudNavLink>
             @if (IsAuthorized())
             {
-                <MudNavLink Href="/editor" Icon="@Icons.Filled.Architecture">
-                    Editor
-                </MudNavLink>
                 <MudNavLink Href="/profile" Icon="@Icons.Filled.Person">
-                    Profile
+                    Личный кабинет
+                </MudNavLink>
+                <MudNavLink Href="/editor" Icon="@Icons.Filled.Architecture">
+                    Редактор изображений
                 </MudNavLink>
             }
             else
             {
-                <MudNavLink Icon="@Icons.Filled.Architecture" OnClick="DisplayLoginDialog">
-                    Editor
-                </MudNavLink>
                 <MudNavLink Icon="@Icons.Filled.Person" OnClick="DisplayLoginDialog">
-                    Profile
+                    Личный кабинет
+                </MudNavLink>
+                <MudNavLink Icon="@Icons.Filled.Architecture" OnClick="DisplayLoginDialog">
+                    Редактор изображений
                 </MudNavLink>
             }
-
+            @if (AppState.UserState.Role == "Admin")
+            {
+                <MudNavLink Href="/admin" Icon="@Icons.Filled.Tab">
+                    Админ-панель
+                </MudNavLink>
+            }
         </MudNavMenu>
     </MudDrawerContainer>
 </MudDrawer>
