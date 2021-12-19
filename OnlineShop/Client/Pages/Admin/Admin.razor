@@ -51,7 +51,7 @@
         result = await GetData(imagesDataPairs);
 
         sizeLabelsForPurchases = result.Item1;
-        colorPaletteSeriesForImages = result.Item2;
+        colorPaletteSeriesForPurchases = result.Item2;
     }
 
     public async Task<(string[], List<ChartSeries>)> GetData(ValueStats[] pairs)
