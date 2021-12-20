@@ -9,9 +9,9 @@
 
     [Parameter]
     public string Id { get; set; }
-    
+
     [Parameter]
-    public string FileName { get; set; }
+    public string? FileName { get; set; }
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
@@ -20,7 +20,7 @@
     {
         Id = Id == "" ? Guid.NewGuid().ToString() : Id;
         Id = "pdf-doc-" + Id;
-        FileName = FileName == "" ? "report" : FileName;
+        FileName ??= "report";
     }
 
     public async Task PrintDialog()
