@@ -10,10 +10,13 @@
 @inject ISnackbar Snackbar
 @inject IDialogService Dialog
 
-<MudCard>
-    <MudText Typo="Typo.h6">Фильтрация</MudText>
-    <MudGrid>
-        @if (colorPalettes != null)
+<MudCard Class="mb-15">
+    <MudText Typo="Typo.h6" Class="px-7">Поиск и фильтрация</MudText>
+    <MudGrid Spacing="3" Justify="Justify.Center" Class="px-10">
+         <MudItem xs="12" sm="6" md="4">
+        <MudTextField @bind-Value="@goodsFilter.Name" TextChanged="@GetGoods" Immediate="true" Label="Поиск по названию" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Search"></MudTextField>
+         </MudItem>
+         @if (colorPalettes != null)
         {
             <MudItem xs="12" sm="6" md="4">
                 <MudSelect T="ColorPalette" @bind-Value="@goodsFilter.ColorPalette" Label="Цветовая палитра" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" ToStringFunc="@colorPaletteConverter">
@@ -36,12 +39,13 @@
             </MudItem>
         }
     </MudGrid>
-    <MudGrid>
-        <MudItem xs="10" sm="1" md="3">
-            <MudButton Variant="Variant.Filled" @onclick="GetGoods">Применить</MudButton>
+    <MudGrid Spacing="5" Justify="Justify.FlexStart" Class="mx-5">
+        
+        <MudItem>
+            <MudButton Variant="Variant.Outlined" @onclick="GetGoods">Применить</MudButton>
         </MudItem>
-        <MudItem xs="10" sm="1" md="3">
-            <MudButton Variant="Variant.Outlined" @onclick="ResetFilter">Сбросить фильтр</MudButton>
+        <MudItem>
+            <MudButton Variant="Variant.Text" @onclick="ResetFilter">Сбросить фильтр</MudButton>
         </MudItem>
     </MudGrid>
 </MudCard>
@@ -50,9 +54,14 @@
     @if (goodsStats == null)
     {
         <MudProgressCircular Color="Color.Default" Indeterminate="true"/>
+        //GetGoods();
     }
     else if (goodsStats != null)
     {
+        if (goodsStats.Length == 0)
+        {
+            <MudText Style="margin: 10px">По вашему запросу ничего не найдено</MudText>
+        }
         @for (int i = 0; i < goodsStats.Length; i++)
         {
             <GoodItem ID=@goodsStats[i].ID Name=@goodsStats[i].Name Price=@goodsStats[i].Price OnBuyGood="BuyGoods"/>
@@ -82,7 +91,7 @@
 
     public async Task ResetFilter()
     {
-        goodsFilter = new GoodsFilter() {ColorPalette = null, ImageSize = null};
+        goodsFilter = new GoodsFilter() {Name = null, ColorPalette = null, ImageSize = null};
         await GetGoods();
     }
 
@@ -126,8 +135,8 @@
     protected override async Task OnInitializedAsync()
     {
         Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-        goodsFilter = new GoodsFilter() {ColorPalette = null, ImageSize = null};
-        GetGoods();
+        goodsFilter = new GoodsFilter() {Name = null, ColorPalette = null, ImageSize = null};
+        await GetGoods();
         colorPalettes = await AppState.ColorPalettesRepository.GetPalettes();
         imageSizes = await AppState.ImageSizesRepository.GetImageSizes();
     }

@@ -17,15 +17,15 @@
         <MudTabs Elevation="0" Rounded="true" Centered="true" PanelClass="pa-6">
             <MudTabPanel Text="Авторизация">
                 <MudTextField @bind-Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
-                <MudTextField @bind-Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult"/>
+                <MudTextField @bind-Value="password"  Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@authResult" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="HideShowPassword"/>
                 <MudText Color="Color.Error">@loginError</MudText>
                 <br>
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Authorize" FullWidth="true">Войти</MudButton>
             </MudTabPanel>
             <MudTabPanel Text="Регистрация">
                 <MudTextField @bind-Value="username" Label="Имя пользователя" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@registerResult"/>
-                <MudTextField @bind-Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@registerResult"/>
-                <MudTextField @bind-Value="passwordRepeated" Label="Повторите пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@registerResult"/>
+                <MudTextField @bind-Value="password" Label="Пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@registerResult" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="HideShowPassword"/>
+                <MudTextField @bind-Value="passwordRepeated" Label="Повторите пароль" Variant="Variant.Outlined" Margin="Margin.Dense" Error="@registerResult" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="HideShowPassword"/>
                 <MudText Color="Color.Error">@registerError</MudText>
                 <br>
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Register" FullWidth="true">Зарегистрироваться</MudButton>
@@ -117,5 +117,23 @@
 
         registerResult = true;
     }
+    
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
 
+    void HideShowPassword()
+    {
+    @if (isShow)
+    {
+        isShow = false;
+        PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+        PasswordInput = InputType.Password;
+    }
+    else {
+        isShow = true;
+        PasswordInputIcon = Icons.Material.Filled.Visibility;
+        PasswordInput = InputType.Text;
+    }
+    }
 }
