@@ -1,12 +1,13 @@
-﻿window.blazorExtensions = {
+﻿// const { jsPDF } = window.jspdf;
+
+window.blazorExtensions = {
     SetCookie: function (name, value, days) {
         var expires;
         if (days) {
             var date = new Date();
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             expires = "; expires=" + date.toGMTString();
-        }
-        else {
+        } else {
             expires = "";
         }
         document.cookie = name + "=" + value + expires + "; path=/";
@@ -26,7 +27,7 @@
         }
         return "";
     },
-    TakeScreenshot: async function(id) {
+    TakeScreenshot: async function (id) {
         var img = "";
         await html2canvas(document.querySelector("#" + id)).then(canvas => img = canvas.toDataURL("image/png"));
         var d = document.createElement("a");
@@ -35,33 +36,16 @@
         d.click();
         return img;
     },
-    Print: async function (fragment, filename="report"){
-        let images = []
-
-        const input = document.getElementById(fragment);
-
-        const promise = new Promise(
-            resolve => html2canvas(input).then(canvas => {
-                resolve(canvas)
-            })
-        )
-
-        await Promise.all([promise]).then(canvas => {
-            const image = canvas[0].toDataURL('image/png')
-            images.push(image)
-        })
-
-        images.length > 0 && download(images);
-
-        async function download(images){
-            const pdf = new jsPDF();
-            const pages = document.getElementById(fragment).offsetHeight / unitToPx('297mm');
-            
-            for (let i = 0; i < Math.round(pages); i++) {
-                i > 0 && i < Math.round(pages) && pdf.addPage()
-                pdf.addImage(images[i], 'PNG', 0, 0)
-            }
-            pdf.save(filename + '.pdf')
-        }
-    },
+    Print: async function (fragment, filename = "report") {
+        var element = document.getElementById(fragment);
+        var opt = {
+            margin: 1,
+            filename: filename + '.pdf',
+            image: {type: 'jpeg', quality: 0.98},
+            html2canvas: {scale: 2},
+            jsPDF: {unit: 'in', format: 'letter', orientation: 'portrait'}
+        };
+        html2pdf().set(opt).from(element).save();
+        return null;
+    }
 }

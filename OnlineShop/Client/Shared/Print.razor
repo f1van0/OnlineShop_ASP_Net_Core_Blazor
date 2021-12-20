@@ -9,6 +9,9 @@
 
     [Parameter]
     public string Id { get; set; }
+    
+    [Parameter]
+    public string FileName { get; set; }
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
@@ -17,12 +20,12 @@
     {
         Id = Id == "" ? Guid.NewGuid().ToString() : Id;
         Id = "pdf-doc-" + Id;
+        FileName = FileName == "" ? "report" : FileName;
     }
 
     public async Task PrintDialog()
     {
-        dynamic result = await _jsRuntime.InvokeAsync<dynamic>("blazorExtensions.Print", new[] {Id});
-        Console.WriteLine(result);
+        await _jsRuntime.InvokeAsync<string>("blazorExtensions.Print", new[] {Id, FileName});
     }
 
 }
