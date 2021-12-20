@@ -1,6 +1,4 @@
-﻿@using OnlineShop.Shared
-@using OnlineShop.Server.DB.Mappers
-@using OnlineShop.Client.Services.State
+﻿@using OnlineShop.Client.Services.State
 @using Microsoft.AspNetCore.Components
 @inject HttpClient client
 @inject AppState _appState
@@ -9,18 +7,29 @@
 <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true" ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
     <MudTabPanel Text="Статистика" Icon="@Icons.Material.Filled.BarChart">
         <MudPaper Class="ma-4">
-            <MudText Typo="Typo.h4">Статистика по покупкам</MudText>
-            <StatisticBarChart dataSource="api/Operations/GetStatistics"></StatisticBarChart>
-            <br>
-            <MudText Typo="Typo.h4">Статистика по загруженным изображениям</MudText>
-            <StatisticBarChart dataSource="api/Image/GetStatistics"></StatisticBarChart>
+            <Print Id="barChart" @ref="@printer">
+                <MudText Typo="Typo.h4">Статистика по покупкам</MudText>
+                <StatisticBarChart dataSource="api/Operations/GetStatistics"></StatisticBarChart>
+                <br>
+                <MudText Typo="Typo.h4">Статистика по загруженным изображениям</MudText>
+                <StatisticBarChart dataSource="api/Image/GetStatistics"></StatisticBarChart>
+            </Print>
         </MudPaper>
     </MudTabPanel>
 </MudTabs>
+<MudButton @onclick="PrintPage" Variant="Variant.Outlined" Color="Color.Info" Size="Size.Large">Print</MudButton>
 
 @code {
+
+    Print printer { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        
     }
+
+    private async Task PrintPage()
+    {
+        await printer.PrintDialog();
+    }
+
 }
