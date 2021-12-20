@@ -60,7 +60,7 @@ namespace OnlineShop.Server.DB
                     else
                     {
                         sql = "SELECT * FROM goods_catalog WHERE Name LIKE @Name AND ColorPaletteID = @ColorPaletteID";
-                        goods = await _db.Select<GoodsStats, dynamic>(sql, new {Name = '%' + filter.Name + '%', ColorPalette = filter.ColorPalette.ID});
+                        goods = await _db.Select<GoodsStats, dynamic>(sql, new {Name = '%' + filter.Name + '%', ColorPaletteID = filter.ColorPalette.ID});
                     }
                 }
                 else
