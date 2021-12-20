@@ -1,0 +1,28 @@
+﻿@using System.Data.Common
+@inject IJSRuntime _jsRuntime
+
+<div id=@Id>
+    @ChildContent
+</div>
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        Id = Id == "" ? Guid.NewGuid().ToString() : Id;
+        Id = "pdf-doc-" + Id;
+    }
+
+    public async Task PrintDialog()
+    {
+        dynamic result = await _jsRuntime.InvokeAsync<dynamic>("blazorExtensions.Print", new[] {Id});
+        Console.WriteLine(result);
+    }
+
+}
