@@ -1,7 +1,6 @@
 ﻿@using OnlineShop.Client.Services.State
 @using Microsoft.AspNetCore.Components
 @inject HttpClient client
-@inject AppState _appState
 @page "/admin"
 
 <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true" ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
@@ -22,10 +21,6 @@
 @code {
 
     Print printer { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-    }
 
     private async Task PrintPage()
     {

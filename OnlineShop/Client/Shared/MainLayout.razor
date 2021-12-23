@@ -9,8 +9,6 @@
                 OnlineShop
             </MudLink>
         }
-        <MudSpacer/>
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End"/>
     </MudAppBar>
     <NavMenu Open=@navMenuOpen ClickedClose="DrawerToggle"></NavMenu>
     <MudMainContent>
@@ -19,7 +17,6 @@
         </div>
     </MudMainContent>
 </MudLayout>
-<AppStateViewer></AppStateViewer>
 
 @code{
     bool navMenuOpen = true;

@@ -2,7 +2,6 @@
 @using OnlineShop.Server.DB.Mappers
 @using OnlineShop.Shared
 @inject HttpClient client
-@inject AppState _appState
 
 @if (labels != null && series != null)
         {
@@ -10,6 +9,9 @@
         }
 
 @code {
+    [CascadingParameter(Name = "AppState")]
+    public AppState AppState { get; set; }
+    
     [Parameter]
     public string dataSource { get; set; }
     
@@ -32,8 +34,8 @@
             stats.Add(item);
         }
         
-        ImageSize[] imageSizes = await _appState.ImageSizesRepository.GetImageSizes();
-        ColorPalette[] colorPalettes = await _appState.ColorPalettesRepository.GetPalettes();
+        ImageSize[] imageSizes = await AppState.ImageSizesRepository.GetImageSizes();
+        ColorPalette[] colorPalettes = await AppState.ColorPalettesRepository.GetPalettes();
         
         var sizeLabels = new string[imageSizes.Length];
         var colorPaletteSeries = new List<ChartSeries>();

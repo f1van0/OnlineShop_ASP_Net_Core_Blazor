@@ -28,15 +28,8 @@
     {
         var requestOperations = await client.PostAsJsonAsync("api/Operations/GetUserOperations", 1);
         var requestImages = await client.PostAsJsonAsync("api/Image/GetImages", 1);
-    //if (requestOperations.StatusCode != HttpStatusCode.Unauthorized && requestImages.StatusCode != HttpStatusCode.Unauthorized)
-    //{
         Purchases = await requestOperations.Content.ReadFromJsonAsync<PurchaseGoods[]>();
         Images = await requestImages.Content.ReadFromJsonAsync<UserImage[]>();
-    //}
-    //else
-    //{
-    //    Dialog.Show<AuthDialog>();
-    //}
     }
 
 
