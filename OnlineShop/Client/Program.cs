@@ -21,6 +21,7 @@ namespace OnlineShop.Client
             builder.Services.AddSingleton<AppState>();
             builder.Services.AddSingleton<Navigation>();
             builder.Services.AddTransient<CookieStorage>();
+            builder.Services.AddTransient<BrowserAPI>();
 
             builder.Services.AddMudServices();
 

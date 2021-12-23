@@ -30,6 +30,36 @@ a, .btn-link {
     color: red;
 }
 
+.print-visible {
+    display: none;
+    visibility: hidden;
+}
+
+@media print {
+    .print-content {
+        background-color: white;
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        margin: 0;
+        padding: 15px;
+        font-size: 14px;
+        line-height: 18px;
+        z-index: 99999;
+    }
+
+    .print-visible {
+        display: block;
+    }
+
+    .print-hide {
+        display: none;
+        visibility: hidden;
+    }
+}
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
@@ -42,9 +72,9 @@ a, .btn-link {
     z-index: 1000;
 }
 
-    #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
-    }
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}

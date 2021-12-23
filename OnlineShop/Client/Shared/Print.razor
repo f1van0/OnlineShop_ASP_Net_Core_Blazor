@@ -1,31 +1,37 @@
 ﻿@using System.Data.Common
-@inject IJSRuntime _jsRuntime
 
-<div id=@Id>
-    @ChildContent
+<div class="print-content">
+    <div class="print-visible">
+        @PrintHeader
+    </div>
+    <div class="print-hide">
+        @HideHeader
+    </div>
+
+    @PrintBody
+
+    <div class="print-hide">
+        @HideFooter
+    </div>
+    <div class="print-visible">
+        @PrintFooter
+    </div>
 </div>
 
 @code {
 
     [Parameter]
-    public string Id { get; set; }
+    public RenderFragment HideHeader { get; set; }
 
     [Parameter]
-    public string? FileName { get; set; }
+    public RenderFragment HideFooter { get; set; }
 
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    public RenderFragment PrintHeader { get; set; }
 
-    protected override void OnParametersSet()
-    {
-        Id = Id == "" ? Guid.NewGuid().ToString() : Id;
-        Id = "pdf-doc-" + Id;
-        FileName ??= "report";
-    }
+    [Parameter]
+    public RenderFragment PrintBody { get; set; }
 
-    public async Task PrintDialog()
-    {
-        await _jsRuntime.InvokeAsync<string>("blazorExtensions.Print", new[] {Id, FileName});
-    }
-
+    [Parameter]
+    public RenderFragment PrintFooter { get; set; }
 }
