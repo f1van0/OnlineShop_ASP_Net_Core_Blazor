@@ -1,4 +1,7 @@
-﻿namespace OnlineShop.Client.Services
+﻿using Microsoft.JSInterop;
+using System.Threading.Tasks;
+
+namespace OnlineShop.Client.Services
 {
     using System;
     using System.Collections.Generic;
@@ -11,10 +14,12 @@
         private const int AdditionalHistorySize = 64;
         private readonly NavigationManager _navigationManager;
         private readonly List<string> _history;
+        private readonly IJSRuntime _jsRuntime;
 
-        public Navigation(NavigationManager navigationManager)
+        public Navigation(NavigationManager navigationManager, IJSRuntime jsRuntime)
         {
             _navigationManager = navigationManager;
+            _jsRuntime = jsRuntime;
             _history = new List<string>(MinHistorySize + AdditionalHistorySize);
             _history.Add(_navigationManager.Uri);
             _navigationManager.LocationChanged += OnLocationChanged;
@@ -44,6 +49,9 @@
             _history.RemoveRange(_history.Count - 2, 2);
             _navigationManager.NavigateTo(backPageUrl);
         }
+
+        public async Task OpenNewTab(string url) =>
+            await _jsRuntime.InvokeAsync<string>("open", $"{_navigationManager.BaseUri}/{url}", "_blank");
 
         // .. All other navigation methods.
 
