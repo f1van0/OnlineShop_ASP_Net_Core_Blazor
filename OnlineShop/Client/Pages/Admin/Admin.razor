@@ -7,12 +7,17 @@
 <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true" ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
     <MudTabPanel Text="Статистика" Icon="@Icons.Material.Filled.BarChart">
         <MudPaper Class="ma-4">
-            <Print Id="barChart" @ref="@printer">
-                <MudText Align="Align.Center">Статистика по покупкам</MudText>
-                <StatisticBarChart dataSource="api/Operations/GetStatistics"></StatisticBarChart>
-                <br>
-                <MudText Align="Align.Center">Статистика по загруженным изображениям</MudText>
-                <StatisticBarChart dataSource="api/Image/GetStatistics"></StatisticBarChart>
+            <Print>
+                <PrintBody>
+                    <MudText Align="Align.Center">Статистика по покупкам</MudText>
+                    <StatisticBarChart dataSource="api/Operations/GetStatistics"></StatisticBarChart>
+                    <br>
+                    <MudText Align="Align.Center">Статистика по загруженным изображениям</MudText>
+                    <StatisticBarChart dataSource="api/Image/GetStatistics"></StatisticBarChart>
+                </PrintBody>
+                <HideFooter>
+                    <MudButton @onclick="PrintPage" Variant="Variant.Outlined" Color="Color.Info">Print</MudButton>
+                </HideFooter>
             </Print>
         </MudPaper>
     </MudTabPanel>
