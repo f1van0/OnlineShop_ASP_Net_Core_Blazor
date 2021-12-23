@@ -9,15 +9,14 @@
 
 <h3>Профиль</h3>
 <MudText>Имя пользователя: @AppState.UserState.UserName</MudText>
+<MudText>Количетсво покупок: @Purchases.Length</MudText>
+<MudText>На сумму: @total ₽</MudText>
+
 <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true" ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
     <MudTabPanel Text="История покупок" Icon="@Icons.Material.Filled.ShoppingCart">
         <MudButton OnClick="PrintPage">Печать</MudButton>
         <Print>
             <PrintBody>
-                Имя пользователя: @AppState.UserState.UserName
-                Количетсво покупок: @Purchases.Length
-                На сумму: @total ₽
-                Список покупок:
                 <PurchaseView Purchases="Purchases"></PurchaseView>
             </PrintBody>
         </Print>
