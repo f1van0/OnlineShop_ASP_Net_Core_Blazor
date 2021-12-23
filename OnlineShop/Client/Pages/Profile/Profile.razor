@@ -2,17 +2,25 @@
 @layout MainLayout
 @using OnlineShop.Client.Services.State
 @using OnlineShop.Shared
+@using OnlineShop.Client.Services
 @inject HttpClient client
 @inject IDialogService Dialog
+@inject BrowserAPI _browserApi
 
 <h3>Профиль</h3>
 <MudText>Имя пользователя: @AppState.UserState.UserName</MudText>
 <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true" ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
     <MudTabPanel Text="История покупок" Icon="@Icons.Material.Filled.ShoppingCart">
+        <MudButton OnClick="PrintPage">Печать</MudButton>
         <Print>
-            <PurchaseView Purchases="Purchases"></PurchaseView>
+            <PrintBody>
+                Имя пользователя: @AppState.UserState.UserName
+                Количетсво покупок: @Purchases.Length
+                На сумму: @total ₽
+                Список покупок:
+                <PurchaseView Purchases="Purchases"></PurchaseView>
+            </PrintBody>
         </Print>
-        <MudButton>Печать</MudButton>
     </MudTabPanel>
     <MudTabPanel Text="Галерея" Icon="@Icons.Material.Filled.Image">
         <ImagesView Images="Images"></ImagesView>
@@ -24,8 +32,10 @@
     [CascadingParameter(Name = "AppState")]
     public AppState AppState { get; set; }
 
-    public UserImage[] Images;
-    public PurchaseGoods[] Purchases;
+    public UserImage[] Images = new UserImage[0];
+    public PurchaseGoods[] Purchases = new PurchaseGoods[0];
+
+    public int total = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -33,7 +43,16 @@
         var requestImages = await client.PostAsJsonAsync("api/Image/GetImages", 1);
         Purchases = await requestOperations.Content.ReadFromJsonAsync<PurchaseGoods[]>();
         Images = await requestImages.Content.ReadFromJsonAsync<UserImage[]>();
+
+        total = 0;
+        foreach (var item in Purchases)
+        {
+            total += item.Price;
+        }
     }
 
-
+    private async Task PrintPage()
+    {
+        await _browserApi.PrintPageDialog();
+    }
 }
