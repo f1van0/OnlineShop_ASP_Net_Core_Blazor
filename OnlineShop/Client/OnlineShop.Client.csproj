@@ -21,4 +21,10 @@
     <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Shared\PaletteView.css">
+      <DependentUpon>PaletteView.razor</DependentUpon>
+    </None>
+  </ItemGroup>
+
 </Project>

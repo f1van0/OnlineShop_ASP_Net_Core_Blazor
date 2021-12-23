@@ -30,15 +30,12 @@ namespace OnlineShop.Server.Controllers
         //С помощью POST пользователю возвращается список его картинок
         public async Task<ActionResult<UserImage>> GetImages([FromBody] int uselessInfo)
         {
-            //JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
-            //var payload = jwtSecurityToken.GetPayload<JWTPayload>();
+            JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
+            var payload = jwtSecurityToken.GetPayload<JWTPayload>();
 
-            var userImages = await _imagesDb.GetUserImages(uselessInfo);
+            var userImages = await _imagesDb.GetUserImages(payload.UserId);
             
-            if (userImages.Count != 0)
-                return Ok(userImages);
-            else
-                return NotFound(null);
+            return Ok(userImages);
         }
 
         [Authorize]

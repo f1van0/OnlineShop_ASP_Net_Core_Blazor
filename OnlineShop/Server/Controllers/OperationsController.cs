@@ -30,18 +30,11 @@ namespace OnlineShop.Server.Controllers
         //С помощью GET пользователю возвращается список его операций
         public async Task<ActionResult<PurchaseGoods[]>> GetUserOperations([FromBody] int uselessInfo)
         {
-            //JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
-            //var payload = jwtSecurityToken.GetPayload<JWTPayload>();
-            var operations = await _operationsDb.GetOperations(uselessInfo);
+            JwtSecurityToken jwtSecurityToken = HttpContext.Request.GetToken();
+            var payload = jwtSecurityToken.GetPayload<JWTPayload>();
+            var operations = await _operationsDb.GetOperations(payload.UserId);
             
-            if (operations.Count != 0)
-            {
-                return Ok(operations);
-            }
-            else
-            {
-                return NotFound(null);
-            }
+            return Ok(operations);
         }
         
         [HttpGet("[action]")]

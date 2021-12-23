@@ -1,0 +1,20 @@
+﻿@using OnlineShop.Server.DB.Mappers
+@if (palette != null)
+{
+    <div class="cell-row" style="font-size: 1px">
+        <div class="cell" style="background-color: @palette.Color1"></div>
+        <div class="cell" style="background-color: @palette.Color2"></div>
+        <div class="cell" style="background-color: @palette.Color3"></div>
+        <div class="cell" style="background-color: @palette.Color4"></div>
+        <div class="cell" style="background-color: @palette.Color5"></div>
+        <div class="cell" style="background-color: @palette.Color6"></div>
+        <div class="cell" style="background-color: @palette.Color7"></div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public ColorPalette palette { get; set; }
+
+}

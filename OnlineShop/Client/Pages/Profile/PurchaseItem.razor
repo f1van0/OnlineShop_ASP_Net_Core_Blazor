@@ -1,9 +1,19 @@
 ﻿@using OnlineShop.Shared
-<MudCard Class="my-2 pa-4 flex-column">
-    <MudText>@purchase.GoodsName</MudText>
-    <MudText>@purchase.Price</MudText>
-        <MudText Class="justify-end">@purchase.Date</MudText>
-    </MudCard>
+<MudCard Class="my-2 pa-4 flex-column align-start">
+    <MudGrid>
+        <MudItem xs="8">
+            <MudText>@purchase.GoodsName</MudText>
+        </MudItem>
+        <MudItem xs="4">
+            <MudText Align="Align.End">@purchase.Price ₽</MudText>
+        </MudItem>
+        <MudItem xs="8">
+            <MudText Class="d-inline ml-auto" Color="Color.Info" Typo="Typo.inherit">Дата операции: @purchase.Date</MudText>
+        </MudItem>
+        <MudItem xs="4">
+        </MudItem>
+    </MudGrid>
+</MudCard>
 
 @code {
 

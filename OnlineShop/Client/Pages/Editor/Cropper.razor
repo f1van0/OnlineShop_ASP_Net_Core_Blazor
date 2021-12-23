@@ -16,7 +16,19 @@
 
 
 <MudPaper Class="">
-    <h3>Cropper</h3>
+    @if (file == null && pixelizeHEXImage == null)
+    {
+        <h3>Этап 1: Выберите изображение</h3>
+    }
+    else if (file != null && pixelizeHEXImage == null)
+    {
+        <h3>Этап 2: Выберите зону для обработки</h3>
+    }
+    else if (pixelizeHEXImage != null)
+    {
+        <h3>Этап 3: Выберите цвет и сохраните результат</h3>
+    }
+        
     <InputFile id="input1" OnChange="OnInputFileChange"></InputFile>
 
     @if (file != null)
@@ -40,8 +52,8 @@
             @if (cropper != null)
             {
                 <div>
-                    width: @width |
-                    height: @height
+                    Ширина: @width |
+                    Высота: @height
                 </div>
                 <MudChipSet Filter="true" SelectedChipChanged="SelectProportion" Mandatory="true">
                     @if (_imageSizes != null)
@@ -62,7 +74,7 @@
 
         </footer>
     }
-    @if (file != null || pixelizeHEXImage != null)
+    @if (pixelizeHEXImage != null)
     {
         <MudChipSet Filter="true" SelectedChipChanged="SelectPalette" Mandatory="true">
             @if (_colorPalettes != null)
@@ -83,7 +95,7 @@
 
     @if (file != null)
     {
-        <MudButton @onclick="DoneCrop" Color="Color.Secondary" Variant="Variant.Filled">Crop image</MudButton>
+        <MudButton @onclick="DoneCrop" Color="Color.Secondary" Variant="Variant.Filled">Далее</MudButton>
     }
 
 
@@ -95,16 +107,16 @@
     {
         <MudGrid>
             <MudItem xs="6">
-                <MudText>Original</MudText>
+                <MudText>Исходное изображение:</MudText>
                 <img src="@imageDataUrl" width="500" height="@FitImage()"/>
             </MudItem>
             <MudItem xs="6">
-                <MudText>Pixilated</MudText>
+                <MudText>Обработанное изображение:</MudText>
                 <Preview Pixels="pixelizeHEXImage" PixelSize="@CalcPixelSize()"/>
             </MudItem>
 
         </MudGrid>
-        <MudButton @onclick="SaveImage" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
+        <MudButton @onclick="SaveImage" Color="Color.Primary" Variant="Variant.Filled">Сохранить</MudButton>
     }
 </MudPaper>
 

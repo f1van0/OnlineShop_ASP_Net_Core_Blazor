@@ -7,10 +7,10 @@
     <MudTabPanel Text="Статистика" Icon="@Icons.Material.Filled.BarChart">
         <MudPaper Class="ma-4">
             <Print Id="barChart" @ref="@printer">
-                <MudText Typo="Typo.h4">Статистика по покупкам</MudText>
+                <MudText Align="Align.Center">Статистика по покупкам</MudText>
                 <StatisticBarChart dataSource="api/Operations/GetStatistics"></StatisticBarChart>
                 <br>
-                <MudText Typo="Typo.h4">Статистика по загруженным изображениям</MudText>
+                <MudText Align="Align.Center">Статистика по загруженным изображениям</MudText>
                 <StatisticBarChart dataSource="api/Image/GetStatistics"></StatisticBarChart>
             </Print>
         </MudPaper>

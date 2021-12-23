@@ -23,5 +23,16 @@ namespace OnlineShop.Client.Services.State
 
         private async Task<ImageSize[]> FetchImageSizes() =>
             await _client.GetFromJsonAsync<ImageSize[]>("api/Params/GetImageSizes");
+        
+        public ImageSize? GetImageSizeByID(int sizeID)
+        {
+            foreach(var item in _imageSizes)
+            {
+                if (item.ID == sizeID)
+                    return item;
+            }
+
+            return null;
+        }
     }
 }

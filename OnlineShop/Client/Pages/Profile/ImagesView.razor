@@ -6,7 +6,7 @@
 {
     @foreach (var image in Images)
     {
-        <ImageItem image="@image" colorPalette="@PickPalette(image)"></ImageItem>
+        <ImageItem image="@image" colorPalette="@PickPalette(image)" imageSize="@PickSize(image)"></ImageItem>
     }
 }
 
@@ -21,4 +21,6 @@
     private ColorPalette PickPalette(UserImage image) => 
         AppState.ColorPalettesRepository.GetPaletteByID(image.ColorPaletteID);
     
+    private ImageSize PickSize(UserImage image) => 
+        AppState.ImageSizesRepository.GetImageSizeByID(image.SizeID);
 }

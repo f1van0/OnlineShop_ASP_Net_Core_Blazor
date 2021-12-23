@@ -15,7 +15,7 @@
         </MudPaper>
     }
     <MudText>Палитра: @colorPalette.Name</MudText>
-    <MudText>Размер рамки: @image.SizeID</MudText>
+    <MudText>Размер рамки: @imageSize.Name</MudText>
 </MudCard>
 
 @code {
@@ -25,6 +25,9 @@
 
     [Parameter]
     public ColorPalette colorPalette { get; set; }
+   
+    [Parameter]
+    public ImageSize imageSize { get; set; }
 
     public string[,] imagePixels;
 

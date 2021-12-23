@@ -5,11 +5,14 @@
 @inject HttpClient client
 @inject IDialogService Dialog
 
-<h3>Profile</h3>
-<MudText>User: @AppState.UserState.UserName</MudText>
+<h3>Профиль</h3>
+<MudText>Имя пользователя: @AppState.UserState.UserName</MudText>
 <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true" ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-6">
     <MudTabPanel Text="История покупок" Icon="@Icons.Material.Filled.ShoppingCart">
-        <PurchaseView Purchases="Purchases"></PurchaseView>
+        <Print Id="barChart" @ref="@printer">
+            <PurchaseView Purchases="Purchases"></PurchaseView>
+        </Print>
+        <MudButton OnClick="()=> printer.PrintDialog()">Печать</MudButton>
     </MudTabPanel>
     <MudTabPanel Text="Галерея" Icon="@Icons.Material.Filled.Image">
         <ImagesView Images="Images"></ImagesView>
@@ -21,6 +24,7 @@
     [CascadingParameter(Name = "AppState")]
     public AppState AppState { get; set; }
 
+    private Print printer;
     public UserImage[] Images;
     public PurchaseGoods[] Purchases;
 
