@@ -1,4 +1,4 @@
-﻿using OnlineShop.Server.DB.Mappers;
+using OnlineShop.Server.DB.Mappers;
 using OnlineShop.Shared;
 using System;
 using System.Collections.Generic;
@@ -26,14 +26,13 @@ namespace OnlineShop.Server.DB
         {
             string sql = "START TRANSACTION;" +
                          @"INSERT INTO online_shop.images 
-                            (OwnerID, Name, SizeID, Image, ColorPaletteID, Date)
-                            VALUES (@OwnerID, @Name, @Size, @Image, @ColorPaletteID, @Date);" +
+                            (OwnerID, SizeID, Image, ColorPaletteID, Date)
+                            VALUES (@OwnerID, @Size, @Image, @ColorPaletteID, @Date);" +
                          "SELECT * FROM online_shop.images  WHERE ID = LAST_INSERT_ID();" +
                          "COMMIT;";
             List<UserImage> userImages = await _db.Select<UserImage, dynamic>(sql, new
             {
                 OwnerID = userId,
-                Name = "123",
                 Image = pixels,
                 Size = sizeId,
                 ColorPaletteID = paletteId,

@@ -19,9 +19,5 @@ namespace OnlineShop.Shared
         
         [JsonPropertyName("Price")]
         [Required] public int Price { get; set; }
-        
-        [JsonPropertyName("Description")]
-
-        [Required] public string Description { get; set; }
     }
 }

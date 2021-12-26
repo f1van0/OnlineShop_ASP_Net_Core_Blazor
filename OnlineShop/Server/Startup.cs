@@ -100,13 +100,6 @@ namespace OnlineShop.Server
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(
-                    Path.Combine(env.ContentRootPath, "static-files")),
-                RequestPath = "/static",
-            });
-
             app.UseRouting();
 
             var enabledAuth = Configuration.GetValue<bool?>("Auth:Enable") ?? false;
